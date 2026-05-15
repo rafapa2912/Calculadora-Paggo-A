@@ -1,0 +1,3095 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paggo — Diagnóstico Financeiro</title>
+  <meta name="description" content="Diagnóstico financeiro Paggo — Payout, Payin e Transferências. Descubra quanto sua empresa pode economizar.">
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-M57S4PMS');</script>
+  <!-- End Google Tag Manager -->
+  <!-- HubSpot tracking (gera cookie hubspotutk e habilita atribuição de fonte/UTM nos submits) -->
+  <script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/23789340.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: rgba(255, 255, 255, 0.02);
+      --surface2: rgba(255, 255, 255, 0.04);
+      --surface3: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.10);
+      --border2: rgba(255, 255, 255, 0.18);
+      --orange: #A64D26;
+      --orange2: #C95C2D;
+      --orange-dim: rgba(166, 77, 38, 0.15);
+      --orange-glow: rgba(166, 77, 38, 0.25);
+      --cream: #e8d5b0;
+      --green: #4caf7d;
+      --green-dim: rgba(76, 175, 125, 0.12);
+      --red: #e05c5c;
+      --text: #ffffff;
+      --text2: #999999;
+      --text3: rgba(255, 255, 255, 0.35);
+      --font: 'Inter', sans-serif;
+      --mono: var(--font);
+      --serif: 'Inter', sans-serif;
+      --r: 16px;
+      --r-sm: 10px;
+      --t: 0.25s cubic-bezier(.4, 0, .2, 1);
+      /* shadcn-style shadow tokens */
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.35);
+      --shadow:    0 8px 24px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4);
+      --ring:      0 0 0 2px var(--bg), 0 0 0 4px var(--orange);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      zoom: 1;
+    }
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── HEADER ── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 40px; border-bottom: none;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px); position: sticky; top: 0; z-index: 200;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .hbadge { font-size: 12px; font-weight: 400; color: var(--text2); }
+
+    /* ── STEPPER ── */
+    .stepper-wrap { display: flex; justify-content: center; padding: 4px 40px 0; }
+    .stepper { display: flex; align-items: center; max-width: 520px; width: 100%; }
+    .s-item { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 0 0 auto; }
+    .s-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.22); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.4);
+      transition: var(--t); font-family: var(--mono);
+      box-shadow: var(--shadow-sm);
+    }
+    .s-dot.active { border-color: var(--orange); color: #fff; box-shadow: 0 0 0 1px var(--orange); }
+    .s-dot.done { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.06); color: #fff; }
+    .s-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); white-space: nowrap; transition: var(--t); }
+    .s-label.active { color: rgba(255,255,255,0.9); }
+    .s-label.done { color: rgba(255,255,255,0.9); }
+    .s-line { flex: 1; height: 1px; background: rgba(255,255,255,0.1); margin: 0 8px 20px; min-width: 36px; }
+
+    /* ── MAIN ── */
+    .main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 6px 40px 16px; }
+    .page { display: none; width: 100%; max-width: 760px; animation: pgIn .28s cubic-bezier(.4,0,.2,1) forwards; }
+    .page.active { display: block; }
+    .page.wide { max-width: 1100px; }
+    @keyframes pgIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── PAGE TYPOGRAPHY ── */
+    .eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--orange2); font-family: var(--mono); margin-bottom: 12px; }
+    .page-title { font-size: clamp(28px,3.5vw,42px); font-weight: 200; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 12px; }
+    .page-sub { font-size: 14px; color: var(--text2); line-height: 1.75; margin-bottom: 36px; max-width: 520px; font-weight: 300; }
+
+    /* ── SCENARIO CARDS ── */
+    .sc-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+    .sc-card { background: var(--surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: var(--r); padding: 24px; cursor: pointer; transition: border-color var(--t), box-shadow var(--t), transform var(--t); position: relative; overflow: hidden; box-shadow: var(--shadow-sm); }
+    .sc-card:hover { border-color: var(--border2); box-shadow: var(--shadow); transform: translateY(-2px); }
+    .sc-card.sel { border-color: var(--orange) !important; box-shadow: 0 0 0 1px var(--orange), var(--shadow); }
+    .sc-card.sc-required { border-color: var(--red) !important; animation: shake .3s; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+    @keyframes hintBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+    #pg1-sc-hint { animation: hintBob 2.2s ease-in-out infinite; }
+    .sc-chk { display: none; }
+    .sc-tag { font-family: var(--mono); font-size: 9px; font-weight: 600; color: var(--orange2); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; background: var(--orange-dim); border: 1px solid rgba(157,78,42,0.25); display: inline-block; padding: 2px 8px; border-radius: 4px; }
+    .sc-name { font-size: 15px; font-weight: 500; margin-bottom: 6px; letter-spacing: -0.2px; }
+    .sc-desc { font-size: 12px; color: var(--text2); line-height: 1.55; }
+
+    /* ── FORM FIELDS ── */
+    .fields { display: grid; gap: 8px; margin-bottom: 16px; }
+    .fg { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; transition: border-color var(--t), box-shadow var(--t); box-shadow: var(--shadow-sm); }
+    .fg:focus-within { border-color: rgba(157,78,42,0.6); box-shadow: 0 0 0 3px rgba(157,78,42,0.12), var(--shadow-sm); }
+
+    /* ── EDITABLE INPUT CONTAINERS ── */
+    /* Box para salary cards (3 colunas) */
+    .sal-input-card {
+      flex: 1; position: relative;
+      background: rgba(255,255,255,0.04); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-left: 2px solid rgba(166,77,38,0.35);
+      border-radius: var(--r-sm); padding: 10px 12px;
+      transition: border-color var(--t), background var(--t), box-shadow var(--t), transform var(--t);
+      box-shadow: var(--shadow-sm);
+    }
+    .sal-input-card > div:first-child { min-height: 26px; }
+    .sal-input-card:hover {
+      border-color: rgba(255,255,255,0.30);
+      border-left-color: rgba(166,77,38,0.65);
+      background: rgba(255,255,255,0.065);
+      transform: translateY(-1px);
+    }
+    .sal-input-card:focus-within {
+      border-color: rgba(157,78,42,0.55);
+      border-left-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(157,78,42,0.12), var(--shadow-sm);
+    }
+
+    /* Row de input horizontal (label esquerda, valor direita) */
+    .vol-input-row {
+      position: relative;
+      background: rgba(255,255,255,0.04); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-left: 2px solid rgba(166,77,38,0.35);
+      border-radius: var(--r-sm);
+      transition: border-color var(--t), background var(--t), box-shadow var(--t), transform var(--t);
+      box-shadow: var(--shadow-sm);
+    }
+    .vol-input-row:hover {
+      border-color: rgba(255,255,255,0.30);
+      border-left-color: rgba(166,77,38,0.65);
+      background: rgba(255,255,255,0.065);
+      transform: translateY(-1px);
+    }
+    .vol-input-row:focus-within {
+      border-color: rgba(157,78,42,0.55);
+      border-left-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(157,78,42,0.12), var(--shadow-sm);
+    }
+    /* Valor numérico editável — underline pontilhado discreto */
+    .vol-input-row .finput {
+      border-bottom: 1px dotted rgba(255,255,255,0.2);
+    }
+    .vol-input-row .finput:focus {
+      border-bottom-color: var(--orange);
+      outline: none;
+    }
+    .flabel { font-size: 9px; font-weight: 500; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+    .info-ico {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px; border-radius: 50%; border: 1px solid currentColor;
+      font-size: 9px; font-family: var(--font); font-weight: 700; text-transform: none;
+      cursor: help; opacity: 0.5; position: relative; letter-spacing: 0;
+    }
+    .info-ico:hover { opacity: 1; color: var(--text); border-color: var(--text); }
+    .info-ico::after {
+      content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%;
+      transform: translateX(-50%) translateY(-6px); background: #1a1a1a; border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.85); padding: 7px 11px; border-radius: var(--r-sm); font-size: 11px; font-weight: 400;
+      white-space: normal; width: max-content; max-width: 220px; text-align: center;
+      pointer-events: none; opacity: 0; transition: all 0.18s; z-index: 10;
+      box-shadow: var(--shadow); line-height: 1.4;
+    }
+    .info-ico:hover::after { opacity: 1; transform: translateX(-50%) translateY(-2px); }
+    .fhint { font-family: var(--mono); font-size: 9px; color: var(--text3); font-weight: 400; letter-spacing: 0; text-transform: none; margin-left: auto; }
+    .frow { display: flex; align-items: center; gap: 8px; }
+    .fpre { font-family: var(--mono); font-size: 14px; font-weight: 500; color: var(--text3); min-width: 18px; }
+    .finput { background: transparent; border: none; outline: none; color: var(--text); font-family: var(--mono); font-size: 18px; font-weight: 400; width: 100%; }
+    .finput::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .finput::placeholder { color: var(--text3); }
+    .finput.sm { font-size: 15px; }
+
+    /* ── PAY SLIDERS ── */
+    .pay-sliders { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+    .pay-slider-card { background: var(--surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 18px 20px; transition: border-color var(--t), box-shadow var(--t), opacity var(--t), transform var(--t); opacity: 0.8; box-shadow: var(--shadow-sm); }
+    .pay-slider-card:hover { border-color: var(--border2); opacity: 1; box-shadow: var(--shadow); transform: translateY(-2px); }
+    .pay-slider-card.active { border-color: rgba(166,77,38,0.55); opacity: 1; box-shadow: 0 0 0 1px rgba(166,77,38,0.2), var(--shadow); }
+    .pay-slider-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .pay-slider-ico { font-size: 20px; flex-shrink: 0; }
+    .pay-slider-info { flex: 1; }
+    .pay-slider-nm { font-size: 14px; font-weight: 700; letter-spacing: -0.1px; }
+    .pay-slider-cost { font-family: var(--mono); font-size: 11px; color: var(--text2); margin-top: 2px; }
+    .pay-slider-pct { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--orange); min-width: 56px; text-align: right; }
+    .pay-slider-row { display: flex; align-items: center; gap: 12px; }
+    .pay-range { -webkit-appearance: none; appearance: none; flex: 1; height: 6px; border-radius: 3px; background: var(--border); outline: none; cursor: pointer; }
+    .pay-range::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--orange); cursor: pointer; }
+    .pay-range::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--orange); cursor: pointer; border: none; }
+    .pay-total-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-radius: var(--r-sm); margin-bottom: 10px; transition: var(--t); }
+    .pay-total-row.ok { background: rgba(76,175,125,0.08); border: 1px solid rgba(76,175,125,0.28); }
+    .pay-total-row.err { background: rgba(220,80,60,0.08); border: 1px solid rgba(220,80,60,0.28); }
+    .pay-total-label { font-size: 12px; font-weight: 600; color: var(--text2); }
+    .pay-total-val { font-family: var(--mono); font-size: 14px; font-weight: 700; }
+    .pay-total-val.ok { color: var(--green); }
+    .pay-total-val.err { color: var(--red); }
+    .pay-suggest-btn { background: transparent; border: 1px dashed rgba(255,255,255,0.2); color: var(--text2); font-family: var(--font); font-size: 11px; font-weight: 500; padding: 7px 14px; border-radius: var(--r-sm); cursor: pointer; transition: var(--t); margin-bottom: 28px; display: inline-flex; align-items: center; gap: 6px; }
+    .pay-suggest-btn:hover { border-color: rgba(157,78,42,0.6); color: var(--orange2); background: rgba(157,78,42,0.05); }
+
+    /* ── ERP ── */
+    .erp-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px; }
+    .erp-card { background: var(--surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 14px 10px; cursor: pointer; text-align: center; transition: border-color var(--t), box-shadow var(--t), opacity var(--t), transform var(--t); position: relative; opacity: 0.8; box-shadow: var(--shadow-sm); }
+    .erp-card:hover { border-color: var(--border2); opacity: 1; box-shadow: var(--shadow); transform: translateY(-2px); }
+    .erp-card.sel { border-color: rgba(166,77,38,0.55); opacity: 1; box-shadow: 0 0 0 1px rgba(166,77,38,0.2), var(--shadow-sm); }
+    .erp-chk { position: absolute; top: 6px; right: 6px; width: 13px; height: 13px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: 7px; color: #fff; opacity: 0; transition: var(--t); }
+    .erp-card.sel .erp-chk { opacity: 1; }
+    .erp-nm { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+    .erp-br { font-size: 10px; color: var(--text3); }
+    .cost-input { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: var(--mono); font-size: 11px; width: 52px; text-align: center; padding: 3px 0; margin: 0 4px; outline: none; transition: border-color var(--t), box-shadow var(--t); }
+    .cost-input:focus { border-color: rgba(157,78,42,0.6); box-shadow: 0 0 0 3px rgba(157,78,42,0.12); }
+    .cost-input::-webkit-outer-spin-button, .cost-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .cost-input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+    .erp-info { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 14px 16px; margin-bottom: 28px; box-shadow: var(--shadow-sm); }
+    .erp-info-label { font-family: var(--mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+    .erp-info-val { font-size: 26px; font-weight: 300; color: var(--cream); }
+    .erp-info-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+    /* ── DIVIDER ── */
+    .divider { height: 1px; background: var(--border); margin: 22px 0 24px; }
+
+    /* ── SUB-SECTION LABEL ── */
+    .sub-section-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--orange2); font-family: var(--mono);
+      margin-bottom: 7px; padding-bottom: 5px;
+      border-bottom: 1px solid rgba(157,78,42,0.2);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .sub-section-label .ss-icon { font-size: 12px; }
+
+    /* ── BUTTONS (shadcn pattern) ── */
+    .btn-row { display: flex; align-items: center; gap: 10px; }
+
+    /* Primary — filled orange */
+    .btn-p {
+      background: linear-gradient(180deg, #B95B30 0%, #A64D26 100%);
+      color: #fff; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; font-family: var(--font); font-size: 15px;
+      font-weight: 500; height: 44px; padding: 0 28px;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+      transition: all var(--t);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.5);
+      white-space: nowrap; letter-spacing: -0.2px;
+    }
+    .btn-p:hover:not(:disabled) {
+      background: linear-gradient(180deg, #C95C2D 0%, #B95B30 100%);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 4px 12px rgba(166,77,38,0.4);
+      transform: translateY(-1px);
+    }
+    .btn-p:focus-visible { outline: none; box-shadow: var(--ring); }
+    .btn-p:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* Secondary — outline */
+    .btn-b {
+      background: transparent; border: 1px solid rgba(255,255,255,0.3);
+      color: var(--text); border-radius: 12px;
+      font-family: var(--font); font-size: 14px; font-weight: 500;
+      height: 44px; padding: 0 24px; cursor: pointer;
+      transition: all var(--t);
+      display: inline-flex; align-items: center;
+    }
+    .btn-b:hover { border-color: #fff; background: rgba(255,255,255,0.08); transform: translateY(-1px); }
+    .btn-b:focus-visible { outline: none; box-shadow: var(--ring); }
+
+    /* Ghost — restart / minor action */
+    .btn-restart {
+      background: transparent; border: 1px solid var(--border);
+      color: rgba(255,255,255,0.55); border-radius: var(--r-sm);
+      font-family: var(--font); font-size: 12px; font-weight: 500;
+      height: 32px; padding: 0 14px; cursor: pointer;
+      transition: border-color var(--t), color var(--t), background var(--t);
+      display: inline-flex; align-items: center; gap: 5px; margin-bottom: 24px;
+    }
+    .btn-restart:hover { border-color: var(--border2); color: var(--text); background: rgba(255,255,255,0.04); }
+
+    /* Link discreto "Saiba mais sobre a Paggo" */
+    .saiba-mais-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--r-sm);
+      color: rgba(255,255,255,0.6); text-decoration: none;
+      font-family: var(--font); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.3px; padding: 7px 12px; height: 32px;
+      box-sizing: border-box; white-space: nowrap;
+      transition: border-color var(--t), color var(--t), background var(--t);
+    }
+    .saiba-mais-btn:hover {
+      border-color: rgba(157,78,42,0.5); color: var(--orange2);
+      background: rgba(157,78,42,0.08);
+    }
+
+    /* ── RESULT HERO ── */
+    .result-hero { position: relative; width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; margin-top: 32px; margin-bottom: 64px; }
+    .rh-phrase { position: absolute; width: 100%; max-width: 820px; font-size: clamp(22px,2.8vw,34px); font-weight: 200; color: rgba(255,255,255,0.7); line-height: 1.35; letter-spacing: -1px; opacity: 0; transform: translateY(20px); animation: rhAnim 42s infinite cubic-bezier(0.25,0.8,0.25,1); }
+    .rh-phrase span { color: var(--orange2); font-weight: 400; }
+    .rh-p1 { animation-delay: 0s; } .rh-p2 { animation-delay: 7s; } .rh-p3 { animation-delay: 14s; }
+    .rh-p4 { animation-delay: 21s; } .rh-p5 { animation-delay: 28s; } .rh-p6 { animation-delay: 35s; }
+    @keyframes rhAnim { 0% { opacity:0; transform:translateY(20px); filter:blur(4px); } 1.5% { opacity:1; transform:translateY(0); filter:blur(0); } 13% { opacity:1; transform:translateY(0); filter:blur(0); } 16% { opacity:0; transform:translateY(-20px); filter:blur(4px); } 100% { opacity:0; } }
+
+    /* ── RESULT KPIs ── */
+    .macro-board { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .mb-row2 { display: flex; gap: 10px; width: 100%; }
+    .kpi-strip { display: flex; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; align-items: stretch; margin-bottom: 14px; gap: 20px; box-shadow: var(--shadow-sm); }
+    @media(max-width:800px) { .mb-row2 { flex-direction: column; } .kpi-strip { flex-direction:column; gap: 16px; border-left: none; } }
+    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .kpi { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); padding: 18px; box-shadow: var(--shadow-sm); }
+    .kpi.feat { background: var(--surface); border: 1px solid rgba(157,78,42,0.35); box-shadow: 0 0 0 1px rgba(157,78,42,0.1), var(--shadow-sm); }
+    .kpi-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); margin-bottom: 10px; font-family: var(--mono); }
+    .kpi-val { font-size: clamp(22px,2.5vw,32px); font-weight: 300; letter-spacing: -0.5px; line-height: 1; margin-bottom: 6px; }
+    .kpi-val.g { color: var(--green); } .kpi-val.cr { color: var(--cream); }
+    .kpi-sub { font-size: 10px; color: var(--text3); font-weight: 400; }
+
+    /* ── ECO NF ── */
+    .eco-nf { background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); }
+    .eco-nf-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+    .eco-nf-text strong { color: var(--text); font-weight: 600; }
+    .eco-nf-val { font-size: 24px; color: var(--green); white-space: nowrap; margin-left: 20px; text-align: right; }
+
+    /* ── INTERMEDIATE LEAD PAGE ── */
+    #analysis-gate {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: var(--bg);
+      padding: 8px 20px 16px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+    body.gate-open { overflow: hidden; }
+    #analysis-gate-card {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 500px; margin: 0 auto;
+      text-align: left; background: transparent; border: none; box-shadow: none; padding: 0;
+    }
+    .ag-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 6px 14px; font-size: 11px; font-weight: 500;
+      color: var(--text2); margin-bottom: 10px;
+    }
+    .ag-badge .ag-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #EAB308;
+    }
+    #ag-title {
+      font-size: clamp(24px, 3.2vw, 32px); font-weight: 300; letter-spacing: -1px;
+      color: #fff; margin-bottom: 8px; line-height: 1.15;
+    }
+    #ag-title span {
+      color: var(--orange2); font-style: italic; font-weight: 400; font-family: var(--serif);
+    }
+    #ag-sub {
+      font-size: 13px; color: var(--text2); font-weight: 300;
+      line-height: 1.5; margin-bottom: 14px;
+    }
+    .ag-field {
+      margin-bottom: 8px;
+    }
+    .ag-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .ag-row .ag-field { margin-bottom: 8px; }
+    @media (max-width: 480px) {
+      .ag-row { grid-template-columns: 1fr; gap: 0; }
+    }
+    .ag-label {
+      display: block; font-size: 12px; font-weight: 600; color: var(--text);
+      margin-bottom: 4px;
+    }
+    .ag-input {
+      width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 12px 14px; color: #fff; font-family: var(--font); font-size: 14px;
+      outline: none; transition: border-color var(--t), box-shadow var(--t);
+    }
+    .ag-input:focus {
+      border-color: rgba(157,78,42,0.6); box-shadow: 0 0 0 3px rgba(157,78,42,0.12);
+    }
+    /* Select com aparência consistente */
+    select.ag-select {
+      -webkit-appearance: none; -moz-appearance: none; appearance: none;
+      padding-right: 40px; cursor: pointer;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1L6 6L11 1' stroke='rgba(255,255,255,0.55)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+      background-repeat: no-repeat; background-position: right 14px center;
+    }
+    select.ag-select option { background: #1a1a1a; color: #fff; }
+    select.ag-select:invalid, select.ag-select option[disabled] { color: rgba(255,255,255,0.35); }
+    .ag-actions {
+      display: flex; gap: 12px; margin-top: 14px;
+    }
+    #ag-btn {
+      background: linear-gradient(180deg, #B95B30 0%, #A64D26 100%);
+      border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: var(--font); font-size: 15px;
+      font-weight: 500; height: 48px; padding: 0 28px; cursor: pointer; border-radius: 8px;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.5);
+      transition: all var(--t); text-align: center; justify-content: center; display: inline-flex; align-items: center; white-space: nowrap; flex: 1;
+    }
+    #ag-btn:hover {
+      background: linear-gradient(180deg, #C95C2D 0%, #B95B30 100%);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 4px 12px rgba(166,77,38,0.4);
+      transform: translateY(-1px);
+    }
+    #ag-btn-back {
+      background: transparent; border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; font-family: var(--font); font-size: 15px; font-weight: 500;
+      height: 48px; padding: 0 28px; cursor: pointer; border-radius: 8px;
+      transition: all var(--t); display: inline-flex; align-items: center; justify-content: center;
+    }
+    #ag-btn-back:hover {
+      border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.05);
+    }
+
+    /* ── CALLOUT ── */
+    .callout { background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; display: flex; align-items: center; gap: 20px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+    .callout-btn { background: var(--orange); color: #fff; border: none; border-radius: var(--r-sm); font-family: var(--font); font-size: 15px; font-weight: 500; height: 48px; padding: 0 32px; cursor: pointer; transition: background var(--t), box-shadow var(--t); display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; flex: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+    .callout-btn:hover { background: var(--orange2); box-shadow: 0 4px 12px rgba(157,78,42,0.35); }
+    .callout-btn:focus-visible { outline: none; box-shadow: var(--ring); }
+    .callout-content { display: flex; flex-direction: column; flex: 2; }
+    .ch { font-size: clamp(18px,2.2vw,24px); font-weight: 300; letter-spacing: -0.3px; line-height: 1.25; }
+    .ch span { color: var(--green); }
+    .cs { font-size: 12px; color: var(--text2); margin-top: 5px; font-weight: 400; }
+
+    /* ── PRODUCT TABS (top level) ── */
+    .product-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .product-tab {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: rgba(255,255,255,0.38); font-family: var(--font); font-size: 14px;
+      font-weight: 500; padding: 12px 20px 11px; cursor: pointer; transition: color var(--t), border-color var(--t);
+      letter-spacing: -0.2px; position: relative;
+    }
+    .product-tab.active { border-bottom-color: var(--orange); color: #fff; }
+    .product-tab:hover:not(.active) { color: rgba(255,255,255,0.65); }
+    .product-pane { display: none; animation: pgIn .28s ease forwards; }
+    .product-pane.active { display: block; }
+
+    /* ── VIEW TOGGLE (shadcn Tabs / ToggleGroup style) ── */
+    .view-toggle { display: flex; gap: 4px; margin-bottom: 20px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 3px; }
+    .vt-btn {
+      flex: 1; padding: 7px 14px; border-radius: calc(var(--r-sm) - 2px);
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      border: none; background: transparent;
+      color: var(--text2); transition: background var(--t), color var(--t), box-shadow var(--t);
+      font-family: var(--font);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .vt-btn.active {
+      background: rgba(157,78,42,0.18); color: var(--text);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .vt-btn:not(.active):hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75); }
+    #btn-show-detailed:hover { background: rgba(255,255,255,0.06) !important; color: rgba(255,255,255,0.75) !important; }
+
+    /* ── COMPARISON TABLE ── */
+    .cmp-table-wrap { margin-bottom: 28px; overflow-x: auto; }
+    .cmp-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 13px;
+    }
+    .cmp-table th {
+      padding: 10px 14px; text-align: right;
+      font-size: 10px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--text2);
+      border-bottom: 1px solid var(--border2);
+    }
+    .cmp-table th:first-child { text-align: left; }
+    .cmp-table td {
+      padding: 11px 14px; text-align: right;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono); font-size: 12px;
+    }
+    .cmp-table td:first-child {
+      text-align: left; font-family: var(--font);
+      font-size: 13px; color: var(--text2);
+    }
+    .cmp-table .cmp-total td {
+      border-bottom: none; font-weight: 600;
+      color: var(--text); border-top: 1px solid var(--border2);
+    }
+    .cmp-table .cmp-total td:first-child { color: var(--text); }
+    .cmp-table .cmp-total-mes td {
+      border-top: none; background: rgba(255,255,255,0.02);
+      font-size: 11px; color: var(--text2);
+    }
+    .cmp-table .cmp-total-mes td:first-child { color: var(--text2); }
+    .cmp-row { cursor: pointer; transition: background var(--t); }
+    @media (hover: hover) {
+      .cmp-row:hover td:not(.col-pgg-t):not(.col-pgg-c) { background: rgba(255,255,255,0.02); }
+      .cmp-row:hover td.col-pgg-t,
+      .cmp-row:hover td.col-pgg-c { background: rgba(76,175,125,0.14); }
+    }
+    .acc-chevron {
+      display: inline-block; font-size: 8px; color: var(--text3);
+      transition: transform 0.2s, color 0.2s; margin-right: 6px;
+      vertical-align: middle;
+    }
+    .acc-chevron.open { transform: rotate(90deg); color: var(--orange2); }
+    .acc-row { display: none; }
+    .acc-row.open { display: table-row; }
+    .acc-row td { border-bottom: 1px solid var(--border2) !important; vertical-align: top; text-align: left !important; }
+    .acc-col-wrap { padding: 0 !important; background: rgba(255,255,255,0.01); }
+    .acc-grid { display: grid; grid-template-columns: 1fr 1fr; }
+    .acc-col { padding: 14px 16px; min-width: 0; }
+    .acc-col-pgg { border-left: 1px solid var(--border); }
+    .acc-col-title {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--text3); margin-bottom: 10px;
+    }
+    .acc-item {
+      display: flex; align-items: flex-start; gap: 6px;
+      padding: 5px 0; border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .acc-item:last-child { border-bottom: none; }
+    .acc-label { flex: 1; font-size: 11px; color: var(--text2); line-height: 1.45; min-width: 100px; }
+    .acc-role {
+      font-size: 9px; font-weight: 500; padding: 2px 6px; border-radius: 4px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text3); white-space: nowrap; flex-shrink: 0;
+    }
+    .acc-time { font-family: var(--mono); font-size: 10px; color: var(--text2); white-space: nowrap; flex-shrink: 0; }
+    .acc-badge {
+      font-size: 9px; font-weight: 500; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+    }
+    .acc-badge.auto { background: rgba(76,175,125,0.12); border: 1px solid rgba(76,175,125,0.2); color: var(--green); }
+    .acc-badge.tarifa { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: var(--text3); }
+    /* Colunas "Atual" — visual neutro/secundário */
+    .cmp-table .col-cli-t,
+    .cmp-table .col-cli-c { color: var(--text3); }
+    .cmp-table thead th.col-cli-t,
+    .cmp-table thead th.col-cli-c { color: var(--text3); }
+
+    /* Colunas "Paggo" — destaque com fundo verde + texto verde */
+    .cmp-table .col-pgg-t,
+    .cmp-table .col-pgg-c {
+      color: var(--green);
+      font-weight: 600;
+      background: rgba(76,175,125,0.09);
+    }
+    .cmp-table thead th.col-pgg-t,
+    .cmp-table thead th.col-pgg-c {
+      color: var(--green);
+      background: rgba(76,175,125,0.16);
+      border-bottom-color: rgba(76,175,125,0.4);
+    }
+    .cmp-table .cmp-total td.col-pgg-t,
+    .cmp-table .cmp-total td.col-pgg-c {
+      background: rgba(76,175,125,0.14);
+      border-top-color: rgba(76,175,125,0.4);
+    }
+    /* Acordeão: coluna Paggo com fundo verde alinhado à faixa da tabela */
+    .acc-col-wrap { background: transparent !important; }
+    .acc-col-pgg {
+      background: rgba(76,175,125,0.09) !important;
+      border-left: none !important;
+    }
+
+    /* ── SWIMLANE ── */
+    .swimlane-wrap { margin-bottom: 28px; }
+    .swimlane-section {
+      border-radius: var(--r); padding: 28px 20px 32px;
+      margin-bottom: 12px; position: relative; overflow: visible;
+    }
+    .swimlane-section.cli { background: rgba(157,78,42,0.04); border: 1px solid rgba(157,78,42,0.18); }
+    .swimlane-section.pgg { background: rgba(76,175,125,0.04); border: 1px solid rgba(76,175,125,0.18); }
+    .swimlane-header { display: flex; align-items: center; gap: 8px; margin-bottom: 32px; }
+    .swimlane-badge { font-family: var(--mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; padding: 3px 10px; border-radius: 4px; }
+    .swimlane-badge.cli { background: rgba(157,78,42,0.14); border: 1px solid rgba(157,78,42,0.25); color: var(--orange2); }
+    .swimlane-badge.pgg { background: rgba(76,175,125,0.12); border: 1px solid rgba(76,175,125,0.25); color: var(--green); }
+    .swimlane-total { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-left: auto; }
+    .swimlane-total span { font-weight: 700; font-size: 11px; }
+    .swimlane-total span.cli-t { color: var(--orange2); }
+    .swimlane-total span.pgg-t { color: var(--green); }
+    .sw-track { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 0; }
+    .sw-line { position: absolute; top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-50%); z-index: 0; }
+    .sw-line.cli { background: linear-gradient(90deg, rgba(157,78,42,0.08), rgba(157,78,42,0.35) 20%, rgba(157,78,42,0.35) 80%, rgba(157,78,42,0.08)); }
+    .sw-line.pgg { background: linear-gradient(90deg, rgba(76,175,125,0.08), rgba(76,175,125,0.35) 20%, rgba(76,175,125,0.35) 80%, rgba(76,175,125,0.08)); }
+    .sw-step { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; flex: 1; }
+    .sw-dot { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 10px; font-weight: 700; position: relative; flex-shrink: 0; transition: transform 0.2s ease; }
+    .sw-dot:hover { transform: scale(1.12); }
+    .sw-dot.cli { background: rgba(157,78,42,0.15); border: 1.5px solid rgba(157,78,42,0.45); color: var(--orange2); }
+    .sw-dot.pgg { background: rgba(76,175,125,0.12); border: 1.5px solid rgba(76,175,125,0.4); color: var(--green); }
+    .sw-dot.auto { background: rgba(76,175,125,0.06); border: 1.5px dashed rgba(76,175,125,0.3); color: rgba(76,175,125,0.5); }
+    .sw-connector { width: 1px; height: 18px; flex-shrink: 0; }
+    .sw-connector.cli { background: rgba(157,78,42,0.25); }
+    .sw-connector.pgg { background: rgba(76,175,125,0.25); }
+    .sw-card { width: 120px; border-radius: 8px; padding: 9px 10px; text-align: center; position: relative; }
+    .sw-card.cli { background: rgba(157,78,42,0.07); border: 1px solid rgba(157,78,42,0.15); }
+    .sw-card.pgg { background: rgba(76,175,125,0.06); border: 1px solid rgba(76,175,125,0.15); }
+    .sw-card.auto-card { background: rgba(76,175,125,0.03); border: 1px dashed rgba(76,175,125,0.15); }
+    .sw-card-title { font-size: 10px; font-weight: 600; line-height: 1.3; margin-bottom: 5px; color: var(--text); }
+    .sw-card-time { font-family: var(--mono); font-size: 10px; font-weight: 700; margin-bottom: 2px; }
+    .sw-card-time.cli { color: var(--orange2); }
+    .sw-card-time.pgg { color: var(--green); }
+    .sw-card-time.auto { color: rgba(76,175,125,0.55); font-size: 9px; }
+    .sw-card-cost { font-family: var(--mono); font-size: 9px; color: var(--text3); }
+    .sw-step.up { flex-direction: column-reverse; }
+    .sw-step.down { flex-direction: column; }
+
+    /* ── TOOLTIP ── */
+    .sw-tip {
+      display: none; position: absolute;
+      bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+      background: #141414; border: 1px solid rgba(255,255,255,0.16);
+      border-radius: var(--r); padding: 0; font-size: 11px; line-height: 1.5;
+      color: rgba(255,255,255,0.75); width: 320px; z-index: 400;
+      pointer-events: none; white-space: normal;
+      box-shadow: var(--shadow), 0 0 0 1px rgba(0,0,0,0.5); overflow: hidden;
+    }
+    .tip-table { width: 100%; border-collapse: collapse; }
+    .tip-table th { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.3); padding: 9px 12px 7px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .tip-table th:not(:first-child) { text-align: right; }
+    .tip-table td { padding: 7px 12px; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.7); }
+    .tip-table td:not(:first-child) { text-align: right; font-family: var(--mono); font-size: 10px; }
+    .tip-table tr:last-child td { border-bottom: none; }
+    .tip-table .tip-role { color: rgba(255,255,255,0.9); font-weight: 500; }
+    .tip-table .tip-note { font-size: 9px; color: rgba(255,255,255,0.35); padding: 5px 12px 8px; border-top: 1px solid rgba(255,255,255,0.06); display: block; }
+    .tip-auto { padding: 12px 14px; font-size: 11px; color: var(--green); text-align: center; }
+    .sw-tip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: rgba(255,255,255,0.14); }
+    .sw-card:hover .sw-tip { display: block; }
+
+    /* ── IMPACT BOX ── */
+    .impact-box {
+      border: 1px solid rgba(157,78,42,0.3); border-radius: var(--r);
+      padding: 24px 28px; margin-bottom: 20px;
+      background: linear-gradient(135deg, rgba(157,78,42,0.09) 0%, rgba(157,78,42,0.03) 100%);
+      text-align: center; box-shadow: var(--shadow-sm);
+    }
+    .impact-box-main {
+      font-size: clamp(17px, 2.2vw, 22px); font-weight: 600;
+      line-height: 1.5; color: var(--text); letter-spacing: -0.3px;
+    }
+    .impact-box-main .hl-orange { color: var(--orange2); }
+    .impact-box-main .hl-cream  { color: var(--cream); }
+
+    /* ── BOX RESUMO PAGGO ── */
+    .pgg-summary-box {
+      margin: 18px 0 0; background: rgba(76,175,125,0.06);
+      border: 1px solid rgba(76,175,125,0.22); border-radius: var(--r);
+      padding: 16px 20px; max-width: 420px; box-shadow: var(--shadow-sm);
+    }
+    .pgg-summary-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 12px; color: var(--text2);
+      padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .pgg-summary-row span:last-child { font-family: var(--mono); color: var(--text); }
+    .pgg-summary-total {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 13px; font-weight: 700; color: var(--green);
+      padding: 10px 0 0; margin-top: 4px;
+    }
+    .pgg-summary-total span:last-child { font-family: var(--mono); font-size: 15px; }
+
+
+    /* ── DONUT CHART CARD ── */
+    .donut-card {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 12px 14px; box-shadow: var(--shadow-sm);
+      display: flex; flex-direction: column; justify-content: center; flex: 1;
+    }
+    .donut-card-title {
+      font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px;
+      color: var(--text2); font-weight: 700; margin-bottom: 4px;
+    }
+    #period-toggle button:hover {
+      filter: brightness(1.15);
+    }
+    .donut-total {
+      font-size: clamp(18px, 2vw, 26px); font-weight: 300; color: #fff;
+      letter-spacing: -1px; margin-bottom: 10px; line-height: 1.1;
+    }
+    .donut-chart-row { display: flex; align-items: center; gap: 18px; }
+    .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .donut-legend-item { display: flex; align-items: center; gap: 7px; font-size: 11px; }
+    .donut-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .donut-legend-label { color: var(--text2); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .donut-legend-value { color: #fff; font-weight: 700; font-family: var(--mono); font-size: 12px; flex-shrink: 0; }
+
+    /* ── BLUR DATA CLASS ── */
+    .blur-data {
+      filter: blur(8px);
+      pointer-events: none;
+      user-select: none;
+      opacity: 0.8;
+      transition: filter 0.3s ease, opacity 0.3s ease;
+    }
+
+    /* ── STEP LABELS (ramp mode) ── */
+    .step-label {
+      font-size: 13px; color: rgba(255,255,255,0.65); font-weight: 400;
+      display: flex; align-items: baseline; gap: 0; margin-bottom: 12px;
+      letter-spacing: 0; text-transform: none;
+    }
+    .step-label::before { display: none; }
+    .step-label::after  { display: none; }
+    .step-num {
+      display: inline; font-weight: 600; color: var(--orange2);
+      margin-right: 6px; font-size: 13px;
+    }
+    .step-phrase-2 {
+      font-size: 13px; color: rgba(255,255,255,0.55); font-weight: 400;
+      margin-bottom: 10px; margin-top: 12px; padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .step-phrase-2 .step-num { font-weight: 600; color: var(--orange2); margin-right: 6px; }
+
+    /* ── ARC TOOLTIP (per segment) ── */
+    .arc-tip-wrap { position: relative; flex-shrink: 0; }
+    .arc-tip {
+      display: none; position: absolute; left: calc(100% + 14px); top: 50%;
+      transform: translateY(-50%);
+      background: #1c1c1c; border: 1px solid rgba(255,255,255,0.16);
+      border-radius: var(--r); padding: 12px 14px; z-index: 200;
+      width: 220px; box-shadow: var(--shadow); pointer-events: none;
+    }
+    .arc-tip::after {
+      content: ''; position: absolute; right: 100%; top: 50%; transform: translateY(-50%);
+      border: 6px solid transparent; border-right-color: rgba(255,255,255,0.16);
+    }
+    .att-title {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--orange2); margin-bottom: 6px;
+    }
+    .att-list { margin: 0; padding-left: 13px; list-style: disc; }
+    .att-list li {
+      font-size: 11px; color: rgba(255,255,255,0.65);
+      line-height: 1.45; margin-bottom: 3px; font-weight: 300;
+    }
+
+    /* ── CTA BUTTON ── */
+    .btn-results-cta {
+      width: 100%; font-size: 15px; font-weight: 500; font-family: var(--font);
+      height: 52px; border-radius: var(--r);
+      background: #9d4e2a;
+      color: #fff; border: none; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(157,78,42,0.35);
+      transition: box-shadow var(--t), transform var(--t), background var(--t);
+      display: flex; align-items: center; justify-content: center;
+      letter-spacing: 0.2px;
+    }
+    .btn-results-cta:hover { background: #b55c33; box-shadow: 0 6px 24px rgba(157,78,42,0.5); transform: translateY(-1px); }
+    .btn-results-cta:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+    @keyframes btnGrad {
+      0%,100% { background-position: 0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+
+    /* ── IMPACT SECTION ── */
+    .pg1-impact-row {
+      text-align: center; margin-top: 24px; padding: 20px 20px 16px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .pg1-impact-phrase {
+      font-size: clamp(16px,1.8vw,22px); font-weight: 200;
+      letter-spacing: -0.5px; color: #fff; margin-bottom: 16px; line-height: 1.2;
+    }
+    .pg1-email-box {
+      display: flex; gap: 0; max-width: 480px; margin: 0 auto;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: var(--r);
+      overflow: hidden; background: rgba(255,255,255,0.04);
+    }
+    .pg1-email-input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: #fff; font-family: var(--font); font-size: 14px; font-weight: 300;
+      padding: 14px 18px;
+    }
+    .pg1-email-input::placeholder { color: rgba(255,255,255,0.35); }
+    .pg1-email-btn {
+      background: #9d4e2a;
+      border: none; color: #fff; font-family: var(--font); font-size: 14px;
+      font-weight: 500; padding: 14px 24px; cursor: pointer; white-space: nowrap;
+      transition: background var(--t), filter var(--t);
+    }
+    .pg1-email-btn:hover { background: #b55c33; }
+    .pg1-email-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pg1-email-sub {
+      font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 10px;
+      font-weight: 300;
+    }
+
+    /* ── SCROLL INDICATOR ── */
+    .scroll-indicator {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      margin-top: 10px; margin-bottom: 15px; cursor: pointer;
+    }
+    .scroll-indicator-text {
+      font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase;
+      letter-spacing: 1.5px; margin-bottom: 6px; transition: color 0.3s;
+    }
+    .scroll-indicator-arrow {
+      color: rgba(255,255,255,0.4);
+      animation: bounceArrow 2s infinite;
+      transition: color 0.3s;
+    }
+    @keyframes bounceArrow {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-6px); }
+      60% { transform: translateY(-3px); }
+    }
+    .scroll-indicator:hover .scroll-indicator-text,
+    .scroll-indicator:hover .scroll-indicator-arrow {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* Editable input boxes: subtle grey border + soft shadow */
+    #pg1-ramp-left div[style*="rgba(255,255,255,0.1"] {
+      box-shadow: 0 1px 6px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.04) inset;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    #pg1-ramp-left div[style*="rgba(255,255,255,0.1"]:focus-within {
+      border-color: rgba(255,255,255,0.28) !important;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.08) inset;
+    }
+
+
+    /* ── RESPONSIVIDADE MOBILE ── */
+    @media (max-width: 600px) {
+      header { padding: 12px 20px; }
+      .hbadge { display: none; }
+      .stepper-wrap { padding: 20px 16px 0; }
+      .s-label { display: none; }
+      .s-line { min-width: 20px; }
+      .main { padding: 24px 16px 12px; }
+      .pg1-impact-row { margin-top: 16px; padding: 14px 20px 8px; }
+      .page { max-width: 100%; }
+      .page.wide { max-width: 100%; }
+      .page-title { font-size: clamp(22px, 6vw, 32px); letter-spacing: -0.5px; }
+      .page-sub { font-size: 13px; margin-bottom: 24px; }
+      .sc-grid { grid-template-columns: 1fr; gap: 10px; }
+      .fields { gap: 20px; }
+      .pay-sliders { gap: 10px; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .kpi.feat { grid-column: span 2; }
+      .eco-nf { flex-direction: column; gap: 12px; }
+      .eco-nf-val { margin-left: 0; text-align: left; }
+      .btn-row { flex-direction: column; gap: 10px; }
+      .btn-p, .btn-b { width: 100%; justify-content: center; }
+      .callout-content { margin-bottom: 16px; }
+      /* Tabela comparativa: compactar células no mobile mantendo scroll horizontal */
+      .cmp-table { font-size: 11px; }
+      .cmp-table th { padding: 8px 8px; font-size: 9px; letter-spacing: 0.5px; }
+      .cmp-table td { padding: 10px 8px; font-size: 11px; }
+      .cmp-table td:first-child, .cmp-table th:first-child { padding-left: 12px; }
+
+      /* Acordeão (sub-atividades): Cenário Atual à esquerda, Paggo à direita */
+      .acc-grid { grid-template-columns: 1fr 1fr; }
+      .acc-col { padding: 12px 10px; }
+      .acc-col-pgg { border-left: 1px solid var(--border); border-top: none; }
+      .acc-col-title { font-size: 8px; letter-spacing: 1px; margin-bottom: 8px; }
+      /* Cada item: label em cima, role + tempo embaixo */
+      .acc-item {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto;
+        gap: 3px 6px;
+        padding: 7px 0;
+        align-items: center;
+      }
+      .acc-label { grid-column: 1 / -1; min-width: 0; font-size: 10.5px; line-height: 1.35; }
+      .acc-role {
+        grid-row: 2; grid-column: 1; justify-self: start;
+        background: transparent;
+        border: none;
+        padding: 0;
+        font-size: 9px;
+        color: rgba(255,255,255,0.45);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+      .acc-time { grid-row: 2; grid-column: 2; justify-self: end; font-size: 9.5px; }
+      .acc-badge { grid-row: 2; grid-column: 2; justify-self: end; font-size: 8px; padding: 2px 5px; }
+      .pgg-summary-box { max-width: 100%; }
+      .product-tabs { overflow-x: auto; }
+      .product-tab { font-size: 12px; padding: 12px 14px; white-space: nowrap; }
+
+      /* Previne overflow horizontal — corrige o "leve zoom" automático ao abrir a página */
+      html, body { overflow-x: hidden; }
+
+      /* ── PG1 ramp grid: stack vertically no celular ── */
+      #pg1-ramp-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+      }
+      #pg1-charts-col {
+        width: 100% !important;
+        padding-top: 0 !important;
+      }
+      /* Inputs herdam largura total e os filhos com estilo inline também */
+      #pg1-ramp-left { width: 100%; }
+
+      /* ── PG2 macro-board: empilhar R$ Economia / Horas Recuperadas ── */
+      .macro-board > div > div[style*="display: flex"] {
+        flex-direction: column !important;
+        gap: 20px !important;
+      }
+      .macro-board > div > div[style*="display: flex"] > div {
+        padding: 0 !important;
+      }
+      .macro-board > div > div[style*="width: 1px"] {
+        display: none !important;
+      }
+      .result-hero { margin-bottom: 28px; height: auto; min-height: 110px; padding: 16px 0; }
+
+      /* ── Swimlane: visível com scroll horizontal ── */
+      .swimlane-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 6px;
+      }
+      .swimlane-section {
+        width: max-content;
+        min-width: 100%;
+        box-sizing: border-box;
+        padding: 18px 16px 22px;
+      }
+      .sw-track { min-width: 900px; padding: 0; gap: 8px; }
+      .sw-step { min-width: 0; padding: 0 4px; box-sizing: border-box; }
+      .sw-card { width: 100%; box-sizing: border-box; padding: 8px 8px; }
+      .sw-card-title { font-size: 9.5px; line-height: 1.3; }
+      .sw-card-time { font-size: 10px; }
+      .sw-card-cost { font-size: 9px; }
+      .swimlane-header { margin-bottom: 22px; flex-wrap: wrap; gap: 6px; }
+      .swimlane-total { width: 100%; margin-left: 0; }
+
+      /* iOS Safari: inputs com font-size < 16px causam auto-zoom ao focar */
+      .ag-input,
+      .finput,
+      .finput.sm,
+      input[type="text"],
+      input[type="email"],
+      input[type="number"],
+      input[type="tel"],
+      textarea,
+      select {
+        font-size: 16px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M57S4PMS"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  <div class="app">
+
+    <!-- HEADER -->
+    <header>
+      <a href="https://www.paggo.com.br/" target="_blank" rel="noopener" class="logo" style="text-decoration:none; cursor:pointer;" title="Visite o site da Paggo">
+        <img src="https://framerusercontent.com/images/sZ59Lzr2F8cb2FIe0mDPM9ots4.png?scale-down-to=512" alt="Paggo"
+          style="height:18px;width:auto;object-fit:contain;">
+      </a>
+      <div class="hbadge">Diagnóstico Financeiro</div>
+    </header>
+
+    <!-- STEPPER -->
+    <div class="stepper-wrap">
+      
+    </div>
+
+    <!-- PAGES -->
+    <div class="main">
+
+      <!-- PAGE 1: Cenários -->
+      <div class="page active" id="pg1" style="width:100%; max-width:1100px; margin:0 auto; padding-top:0;">
+
+        <!-- TÍTULO -->
+        <div style="margin-bottom:14px;">
+          <h1 style="margin:0 0 10px; font-size:clamp(22px,2.6vw,35px); font-weight:200; letter-spacing:-1.2px; color:#fff; line-height:1.1;">Veja quanto você pode economizar <span style="color:var(--orange2); font-weight:300;">com a Paggo</span></h1>
+        </div>
+
+        <!-- ═══ RAMP GRID ═══ -->
+        <div id="pg1-ramp-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:stretch;">
+
+          <!-- LEFT: inputs empilhados -->
+          <div id="pg1-ramp-left" style="display:flex; flex-direction:column; gap:10px;">
+
+            <!-- SECÇÃO COMPARTILHADA: Cenário + Salários -->
+            <div id="pg1-sc-sal" style="display:flex; flex-direction:column; gap:10px;">
+
+              <!-- STEP 1 / Cenário -->
+              <div>
+                <div class="step-label"><span class="step-num">Passo 1</span>Selecione o cenário da sua empresa</div>
+                <div style="display:flex; gap:8px;">
+                  <div class="sc-card" data-sc="erp" onclick="pickSc('erp')" id="sc-erp" style="flex:1; padding:14px 10px; text-align:center; position:relative; background:transparent; border-radius:8px; overflow:hidden; cursor:pointer;">
+                    <div class="sc-chk" style="top:6px; right:6px; width:12px; height:12px; font-size:7px;">✓</div>
+                    <div style="font-size:12px; font-weight:700; color:#fff; line-height:1.3;">ERP</div>
+                    <div style="font-size:9.5px; color:var(--text2); margin-top:4px; line-height:1.4;">Controle da empresa via ERP</div>
+                  </div>
+                  <div class="sc-card" data-sc="planilha" onclick="pickSc('planilha')" id="sc-planilha" style="flex:1; padding:14px 10px; text-align:center; position:relative; background:transparent; border-radius:8px; overflow:hidden; cursor:pointer;">
+                    <div class="sc-chk" style="top:6px; right:6px; width:12px; height:12px; font-size:7px;">✓</div>
+                    <div style="font-size:12px; font-weight:700; color:#fff; line-height:1.3;">Planilha</div>
+                    <div style="font-size:9.5px; color:var(--text2); margin-top:4px; line-height:1.4;">Controle da empresa via planilha manual</div>
+                  </div>
+                  <div class="sc-card" data-sc="erp_van" onclick="pickSc('erp_van')" id="sc-erp-van" style="flex:1; padding:14px 10px; text-align:center; position:relative; background:transparent; border-radius:8px; overflow:hidden; cursor:pointer;">
+                    <div class="sc-chk" style="top:6px; right:6px; width:12px; height:12px; font-size:7px;">✓</div>
+                    <div style="font-size:12px; font-weight:700; color:#fff; line-height:1.3;">ERP + Van Bancária</div>
+                    <div style="font-size:9.5px; color:var(--text2); margin-top:4px; line-height:1.4;">Controle da empresa via ERP + automações com Van Bancária</div>
+                  </div>
+                </div>
+                <!-- Dica visual antes de qualquer seleção -->
+                <div id="pg1-sc-hint" style="margin-top:10px; font-size:10px; color:rgba(255,255,255,0.25); letter-spacing:0.5px; transition:opacity 0.3s;">Selecione um cenário acima para personalizar os campos</div>
+              </div>
+
+              <!-- STEP 2 / Salários — oculto até cenário ser escolhido -->
+              <div id="pg1-sal-section" style="display:none; opacity:0; transform:translateY(10px); transition:opacity 0.4s ease, transform 0.4s ease;">
+                <div class="step-phrase-2"><span class="step-num">Passo 2</span>Ajuste os valores para obter os resultados personalizados</div>
+                <div style="display:flex; gap:8px;">
+                  <div class="sal-input-card">
+                    <div style="font-size:9px; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">Salário analista financeiro</div>
+                    <div class="info-ico" style="position:absolute; top:6px; right:6px; border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.4);" data-tooltip="Salário bruto mensal do analista financeiro">i</div>
+                    <div style="display:flex; align-items:center;">
+                      <span style="font-size:11px; color:var(--text2); margin-right:2px;">R$</span>
+                      <input class="finput sm" id="sal-a" type="number" value="3500" min="1000" max="50000" step="100" style="width:100%; border:none; background:transparent; padding:0; font-size:13px; color:#fff;" oninput="updateLivePreview()">
+                    </div>
+                  </div>
+                  <div class="sal-input-card">
+                    <div style="font-size:9px; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">Salário gestor financeiro</div>
+                    <div class="info-ico" style="position:absolute; top:6px; right:6px; border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.4);" data-tooltip="Salário bruto mensal do gestor financeiro">i</div>
+                    <div style="display:flex; align-items:center;">
+                      <span style="font-size:11px; color:var(--text2); margin-right:2px;">R$</span>
+                      <input class="finput sm" id="sal-g" type="number" value="12000" min="1000" max="100000" step="500" style="width:100%; border:none; background:transparent; padding:0; font-size:13px; color:#fff;" oninput="updateLivePreview()">
+                    </div>
+                  </div>
+                  <div class="sal-input-card">
+                    <div style="font-size:9px; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">Pró-labore Sócio</div>
+                    <div class="info-ico" style="position:absolute; top:6px; right:6px; border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.4);" data-tooltip="Pró-labore mensal do sócio">i</div>
+                    <div style="display:flex; align-items:center;">
+                      <span style="font-size:11px; color:var(--text2); margin-right:2px;">R$</span>
+                      <input class="finput sm" id="sal-s" type="number" value="25000" min="5000" max="300000" step="1000" style="width:100%; border:none; background:transparent; padding:0; font-size:13px; color:#fff;" oninput="updateLivePreview()">
+                    </div>
+                  </div>
+                </div>
+              </div><!-- /#pg1-sal-section -->
+
+            </div><!-- /#pg1-sc-sal -->
+
+            <!-- STEP 3 / Volumes — oculto até cenário ser escolhido -->
+            <div id="pg1-volumes-section" style="display:none; opacity:0; transform:translateY(10px); transition:opacity 0.4s ease, transform 0.4s ease;">
+
+              <!-- CONTAS A PAGAR -->
+              <div style="margin-bottom:8px;">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <div class="vol-input-row" style="display:flex; flex-direction:row; justify-content:space-between; align-items:center; padding:8px 12px;">
+                    <div style="font-size:10px; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; font-weight:500;">Número de pagamentos realizados no mês:</div>
+                    <div style="display:flex; align-items:center; gap:6px; padding-right:18px;">
+                      <input class="finput sm" id="qtd-payout" type="number" value="1000" style="width:65px; text-align:right; border:none; background:transparent; font-size:13px; color:#fff;" oninput="updateLivePreview()">
+                    </div>
+                    <div class="info-ico" style="position:absolute; top:50%; right:8px; transform:translateY(-50%); border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.4);" data-tooltip="Pagamentos realizados ao longo do mês">i</div>
+                  </div>
+                  <div class="vol-input-row" style="padding:8px 12px;">
+                    <div class="info-ico" style="position:absolute; top:10px; right:8px; border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.4);" data-tooltip="Proporção entre PIX/TED e Boleto. A soma é sempre 100%.">i</div>
+                    <div style="font-size:9px; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:9px;">PROPORÇÃO ENTRE PAGAMENTOS REALIZADOS:</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; margin-bottom:9px; font-weight:600; text-transform:uppercase;">
+                      <span style="color:var(--orange2);">PIX/TED — <span id="pct-pixted-val">60%</span></span>
+                      <span></span>
+                      <span style="color:var(--text2);">BOLETO — <span id="pct-boleto-val">40%</span></span>
+                    </div>
+                    <input type="range" class="pay-range" id="pct-pixted" min="0" max="100" step="5" value="60" oninput="updatePaySliders('pixted')" style="width:100%; margin-bottom:7px;">
+                    <input type="hidden" id="pct-boleto" value="40">
+                    <div style="font-size:8px; color:rgba(255,255,255,0.3); cursor:pointer; transition:color 0.2s;" onclick="suggestPayDefaults()" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">SUGESTÃO DE MERCADO: 60% PIX/TED + 40% BOLETO</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CONTAS A RECEBER -->
+              <div style="margin-bottom:8px;">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <div class="vol-input-row" style="display:flex; flex-direction:row; justify-content:space-between; align-items:center; padding:8px 12px;">
+                    <div style="font-size:10px; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; font-weight:500;">Número de cobranças realizadas no mês:</div>
+                    <div style="display:flex; align-items:center; gap:6px; padding-right:18px;">
+                      <input class="finput sm" id="qtd-payin" type="number" value="200" style="width:65px; text-align:right; border:none; background:transparent; font-size:13px; color:#fff;" oninput="updateLivePreview()">
+                    </div>
+                    <div class="info-ico" style="position:absolute; top:50%; right:8px; transform:translateY(-50%); border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.4);" data-tooltip="Boletos / cobranças emitidas por mês">i</div>
+                  </div>
+                  <div class="vol-input-row" style="display:flex; flex-direction:row; justify-content:space-between; align-items:center; padding:8px 12px;">
+                    <div style="font-size:10px; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; font-weight:500;">Tarifa média para emissão de boleto:</div>
+                    <div style="display:flex; align-items:center; gap:5px; padding-right:18px;">
+                      <span style="font-size:11px; color:var(--text2);">R$</span>
+                      <input class="finput sm" id="tarifa-boleto-banco" type="number" value="3.50" style="width:42px; text-align:right; border:none; background:transparent; font-size:13px; color:#fff;" oninput="updateLivePreview()">
+                      <span style="font-size:8px; color:rgba(255,255,255,0.3);">PADRÃO: R$ 3,50</span>
+                    </div>
+                    <div class="info-ico" style="position:absolute; top:50%; right:8px; transform:translateY(-50%); border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.4);" data-tooltip="Tarifa que o seu banco desconta no recebimento">i</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TRANSFERÊNCIAS -->
+              <div>
+                <div class="vol-input-row" style="display:flex; flex-direction:row; justify-content:space-between; align-items:center; padding:8px 12px;">
+                  <div style="font-size:10px; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; font-weight:500;">Número de contas bancárias ativas:</div>
+                  <div style="display:flex; align-items:center; gap:6px; padding-right:18px;">
+                    <input class="finput sm" id="n-contas-total" type="number" value="20" style="width:65px; text-align:right; border:none; background:transparent; font-size:13px; color:#fff;" oninput="updateLivePreview()">
+                  </div>
+                  <div class="info-ico" style="position:absolute; top:50%; right:8px; transform:translateY(-50%); border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.4);" data-tooltip="Número total de contas bancárias da empresa">i</div>
+                </div>
+              </div>
+
+            <!-- Botão confirmar valores -->
+            <div id="pg1-confirm-btn-wrap" style="padding:10px 0 4px 0; display:none; opacity:0; transform:translateY(10px); transition:opacity 0.4s ease, transform 0.4s ease;">
+              <button onclick="confirmarValores()" style="width:100%; padding:10px 0; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:rgba(255,255,255,0.7); font-family:var(--font); font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; cursor:pointer; transition:background 0.18s, color 0.18s;" onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.color='rgba(255,255,255,0.95)'" onmouseout="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.7)'">
+                Confirmar valores
+              </button>
+            </div>
+
+            </div><!-- /#pg1-volumes-section -->
+
+          </div><!-- /#pg1-ramp-left -->
+
+          <!-- RIGHT: gráficos + botão — oculto até cenário ser escolhido -->
+          <div id="pg1-charts-col" style="display:none; flex-direction:column; justify-content:flex-start; gap:10px; padding-top:26px; position:relative; opacity:0; transform:translateY(10px); transition:opacity 0.4s ease, transform 0.4s ease;">
+
+            <!-- LINK SAIBA MAIS -->
+            <a href="https://www.paggo.com.br/" target="_blank" rel="noopener" class="saiba-mais-btn" style="align-self:flex-end; margin-bottom:8px;">Saiba mais sobre a Paggo <span style="font-size:10px;">↗</span></a>
+
+            <!-- BOTÃO VER RESULTADOS -->
+            <button class="btn-p btn-results-cta" id="btn-show-result" onclick="showResult()" disabled style="margin-bottom:14px; position:relative; z-index:10;">Ver resultados</button>
+
+            <div id="blurred-charts-wrapper" style="display:flex; flex-direction:column; gap:10px; position:relative; padding-top: 36px;">
+              <!-- Toggle mensal/anual — flutua no topo sem deslocar os cards -->
+              <div id="period-toggle" style="position:absolute; top:0; right:0; display:flex; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10); border-radius:20px; overflow:hidden;">
+              <button id="period-opt-mes" onclick="setPeriod(false)" style="font-family:var(--font); font-size:10px; font-weight:600; letter-spacing:0.5px; padding:3px 11px; border:none; cursor:pointer; transition:all 0.18s; background:var(--orange); color:#fff;">Mensal</button>
+              <button id="period-opt-ano" onclick="setPeriod(true)"  style="font-family:var(--font); font-size:10px; font-weight:500; letter-spacing:0.5px; padding:3px 11px; border:none; cursor:pointer; transition:all 0.18s; background:transparent; color:rgba(255,255,255,0.4);">Anual</button>
+            </div>
+
+            <!-- DONUT 1: Economia financeira/mês -->
+            <div class="donut-card" style="position:relative;">
+              <div class="donut-card-title" id="donut-title-money">Economia financeira estimada / MÊS</div>
+              <div class="donut-total" id="donut-money-total">Selecione um cenário</div>
+              <div class="donut-chart-row">
+                <div class="arc-tip-wrap">
+                  <div id="arc-tip-m" class="arc-tip"></div>
+                  <svg viewBox="0 0 140 140" width="100" height="100" style="flex-shrink:0; transform:rotate(-90deg); overflow:visible;">
+                    <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="22"/>
+                    <circle id="donut-m-1" cx="70" cy="70" r="54" fill="none" stroke="#9d4e2a" stroke-width="22" stroke-dasharray="0 339.3" stroke-linecap="butt" style="transition:all 0.5s ease; cursor:pointer;" onmouseenter="showArcTip('m',0)" onmouseleave="hideArcTip('m')"/>
+                    <circle id="donut-m-2" cx="70" cy="70" r="54" fill="none" stroke="#4F7EA8" stroke-width="22" stroke-dasharray="0 339.3" stroke-linecap="butt" style="transition:all 0.5s ease; cursor:pointer;" onmouseenter="showArcTip('m',1)" onmouseleave="hideArcTip('m')"/>
+                    <circle id="donut-m-3" cx="70" cy="70" r="54" fill="none" stroke="#8A9BB0" stroke-width="22" stroke-dasharray="0 339.3" stroke-linecap="butt" style="transition:all 0.5s ease; cursor:pointer;" onmouseenter="showArcTip('m',2)" onmouseleave="hideArcTip('m')"/>
+                  </svg>
+                </div>
+                <div class="donut-legend">
+                  <div class="donut-legend-item">
+                    <div class="donut-legend-dot" style="background:#9d4e2a;"></div>
+                    <span class="donut-legend-label">Contas a Pagar</span>
+                    <span class="donut-legend-value" id="donut-m-leg-1">—</span>
+                  </div>
+                  <div class="donut-legend-item">
+                    <div class="donut-legend-dot" style="background:#4F7EA8;"></div>
+                    <span class="donut-legend-label">Contas a Receber</span>
+                    <span class="donut-legend-value" id="donut-m-leg-2">—</span>
+                  </div>
+                  <div class="donut-legend-item">
+                    <div class="donut-legend-dot" style="background:#8A9BB0;"></div>
+                    <span class="donut-legend-label">Transferências</span>
+                    <span class="donut-legend-value" id="donut-m-leg-3">—</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DONUT 2: Tempo economizado/mês -->
+            <div class="donut-card" style="position:relative;">
+              <div class="donut-card-title" id="donut-title-hours">Tempo economizado estimado / MÊS</div>
+              <div class="donut-total" id="donut-hours-total">—</div>
+              <div class="donut-chart-row">
+                <div class="arc-tip-wrap">
+                  <div id="arc-tip-h" class="arc-tip"></div>
+                  <svg viewBox="0 0 140 140" width="100" height="100" style="flex-shrink:0; transform:rotate(-90deg); overflow:visible;">
+                    <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="22"/>
+                    <circle id="donut-h-1" cx="70" cy="70" r="54" fill="none" stroke="#9d4e2a" stroke-width="22" stroke-dasharray="0 339.3" stroke-linecap="butt" style="transition:all 0.5s ease; cursor:pointer;" onmouseenter="showArcTip('h',0)" onmouseleave="hideArcTip('h')"/>
+                    <circle id="donut-h-2" cx="70" cy="70" r="54" fill="none" stroke="#4F7EA8" stroke-width="22" stroke-dasharray="0 339.3" stroke-linecap="butt" style="transition:all 0.5s ease; cursor:pointer;" onmouseenter="showArcTip('h',1)" onmouseleave="hideArcTip('h')"/>
+                    <circle id="donut-h-3" cx="70" cy="70" r="54" fill="none" stroke="#8A9BB0" stroke-width="22" stroke-dasharray="0 339.3" stroke-linecap="butt" style="transition:all 0.5s ease; cursor:pointer;" onmouseenter="showArcTip('h',2)" onmouseleave="hideArcTip('h')"/>
+                  </svg>
+                </div>
+                <div class="donut-legend">
+                  <div class="donut-legend-item">
+                    <div class="donut-legend-dot" style="background:#9d4e2a;"></div>
+                    <span class="donut-legend-label">Contas a Pagar</span>
+                    <span class="donut-legend-value" id="donut-h-leg-1">—</span>
+                  </div>
+                  <div class="donut-legend-item">
+                    <div class="donut-legend-dot" style="background:#4F7EA8;"></div>
+                    <span class="donut-legend-label">Contas a Receber</span>
+                    <span class="donut-legend-value" id="donut-h-leg-2">—</span>
+                  </div>
+                  <div class="donut-legend-item">
+                    <div class="donut-legend-dot" style="background:#8A9BB0;"></div>
+                    <span class="donut-legend-label">Transferências</span>
+                    <span class="donut-legend-value" id="donut-h-leg-3">—</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            </div> <!-- /#blurred-charts-wrapper -->
+
+          </div><!-- /#pg1-charts-col -->
+
+        </div><!-- /#pg1-ramp-grid -->
+
+      </div><!-- /#pg1 -->
+<!-- PAGE 4: Resultado -->
+      <div class="page wide" id="pg2">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; position:relative; z-index:10;">
+          <button class="btn-restart" style="margin-bottom:0;" onclick="nav(1)">← Voltar ao diagnóstico</button>
+          <a href="https://www.paggo.com.br/" target="_blank" rel="noopener" class="saiba-mais-btn">Saiba mais sobre a Paggo <span style="font-size:10px;">↗</span></a>
+        </div>
+        <div class="result-hero" id="result-hero">
+          <div class="rh-phrase rh-p1">Conferência automática de dados e alocação inteligente: cada pagamento <span>já cai no centro de custo e projeto correto.</span></div>
+          <div class="rh-phrase rh-p2">Deixe de gastar tempo autorizando pagamentos diariamente pelo banco. <span>A Paggo resolve isso para você com segurança.</span></div>
+          <div class="rh-phrase rh-p3"><span>Zere</span> as horas perdidas caçando comprovantes. A Paggo os identifica e <span>aloca automaticamente</span>.</div>
+          <div class="rh-phrase rh-p4">Reduza a inadimplência com uma <span>régua de cobrança inteligente</span>.</div>
+          <div class="rh-phrase rh-p5">Elimine taxas bancárias, concentre o fluxo de caixa onde ele <span>gera resultado</span>.</div>
+          <div class="rh-phrase rh-p6">Visualize todas suas contas e saldos projetados em <span>um lugar só</span>.</div>
+        </div>
+
+        <!-- MACRO KPIs consolidados -->
+        <div class="kpi-grid" id="kpis-macro"></div>
+
+        <div id="detailed-analysis-wrapper" style="position: relative; z-index: 5; margin-top: 24px;">
+        <!-- PRODUCT TABS -->
+        <div class="product-tabs" id="product-tabs">
+          <button class="product-tab active" onclick="setProductTab('payout')" id="ptab-payout">PAGAMENTOS</button>
+          <button class="product-tab" onclick="setProductTab('payin')" id="ptab-payin">COBRANÇAS</button>
+          <button class="product-tab" onclick="setProductTab('transf')" id="ptab-transf">TRANSFERÊNCIA ENTRE CONTAS</button>
+        </div>
+
+        <!-- PAYOUT PANE -->
+        <div class="product-pane active" id="pane-payout">
+          <div class="kpi-grid" id="kpis-payout"></div>
+          <div class="eco-nf" id="eco-nf-payout"></div>
+          <div class="view-toggle" id="vt-payout">
+            <button class="vt-btn active" onclick="setView('payout','table')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> Tabela</button>
+            <button class="vt-btn" onclick="setView('payout','swimlane')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M9 6h6a2 2 0 0 1 2 2v7"/></svg> Fluxo do Processo</button>
+          </div>
+          <div class="cmp-table-wrap" id="view-table-payout">
+            <table class="cmp-table"><thead><tr><th>Etapa</th><th class="col-cli-t">Tempo atual</th><th class="col-cli-c">Custo atual</th><th class="col-pgg-t">Tempo Paggo</th><th class="col-pgg-c">Custo Paggo</th></tr></thead><tbody id="cmp-tbody-payout"></tbody></table>
+          </div>
+          <div class="swimlane-wrap" id="swimlane-wrap-payout" style="display:none;"></div>
+          <div class="impact-box" id="impact-box-payout"></div>
+        </div>
+
+        <!-- PAYIN PANE -->
+        <div class="product-pane" id="pane-payin">
+          <div class="kpi-grid" id="kpis-payin"></div>
+          <div class="eco-nf" id="eco-nf-payin"></div>
+          <div class="view-toggle" id="vt-payin">
+            <button class="vt-btn active" onclick="setView('payin','table')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> Tabela</button>
+            <button class="vt-btn" onclick="setView('payin','swimlane')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M9 6h6a2 2 0 0 1 2 2v7"/></svg> Fluxo do Processo</button>
+          </div>
+          <div class="cmp-table-wrap" id="view-table-payin">
+            <table class="cmp-table"><thead><tr><th>Etapa</th><th class="col-cli-t">Tempo atual</th><th class="col-cli-c">Custo atual</th><th class="col-pgg-t">Tempo Paggo</th><th class="col-pgg-c">Custo Paggo</th></tr></thead><tbody id="cmp-tbody-payin"></tbody></table>
+          </div>
+          <div class="swimlane-wrap" id="swimlane-wrap-payin" style="display:none;"></div>
+          <div class="impact-box" id="impact-box-payin"></div>
+        </div>
+
+        <!-- TRANSF PANE -->
+        <div class="product-pane" id="pane-transf">
+          <div class="kpi-grid" id="kpis-transf"></div>
+          <div class="eco-nf" id="eco-nf-transf"></div>
+          <div class="view-toggle" id="vt-transf">
+            <button class="vt-btn active" onclick="setView('transf','table')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> Tabela</button>
+            <button class="vt-btn" onclick="setView('transf','swimlane')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M9 6h6a2 2 0 0 1 2 2v7"/></svg> Fluxo do Processo</button>
+          </div>
+          <div class="cmp-table-wrap" id="view-table-transf">
+            <table class="cmp-table"><thead><tr><th>Etapa</th><th class="col-cli-t">Tempo atual</th><th class="col-cli-c">Custo atual</th><th class="col-pgg-t">Tempo Paggo</th><th class="col-pgg-c">Custo Paggo</th></tr></thead><tbody id="cmp-tbody-transf"></tbody></table>
+          </div>
+          <div class="swimlane-wrap" id="swimlane-wrap-transf" style="display:none;"></div>
+          <div class="impact-box" id="impact-box-transf"></div>
+        </div>
+
+        </div> <!-- end #detailed-analysis-wrapper -->
+
+        <!-- INTERMEDIATE LEAD PAGE -->
+        <div id="analysis-gate" style="display:none;">
+          <div id="analysis-gate-card">
+            <div class="ag-badge"><div class="ag-dot"></div>Antes de começar</div>
+            <h2 id="ag-title">Para conferir os resultados,<br><span>conte um pouco sobre você</span></h2>
+            <p id="ag-sub">Suas respostas são confidenciais. Usamos esses dados apenas para enviar o resultado e, se quiser, dar continuidade no seu teste gratuito.</p>
+
+            <div class="ag-row">
+              <div class="ag-field">
+                <label class="ag-label">Nome</label>
+                <input type="text" id="ag-firstname" class="ag-input" placeholder="Nome" autocomplete="given-name">
+              </div>
+              <div class="ag-field">
+                <label class="ag-label">Sobrenome</label>
+                <input type="text" id="ag-lastname" class="ag-input" placeholder="Sobrenome" autocomplete="family-name">
+              </div>
+            </div>
+            <div class="ag-field">
+              <label class="ag-label">Telefone</label>
+              <input type="tel" id="ag-phone" class="ag-input" placeholder="(11) 99999-9999" autocomplete="tel" inputmode="tel" oninput="formatPhone(this)" maxlength="16">
+            </div>
+            <div class="ag-field">
+              <label class="ag-label">E-mail corporativo</label>
+              <input type="email" id="ag-email" class="ag-input" placeholder="E-mail corporativo" autocomplete="email">
+            </div>
+            <div class="ag-field">
+              <label class="ag-label">Empresa</label>
+              <input type="text" id="ag-company" class="ag-input" placeholder="Empresa" autocomplete="organization">
+            </div>
+            <div class="ag-field">
+              <label class="ag-label">Cargo</label>
+              <select id="ag-role" class="ag-input ag-select">
+                <option value="" disabled selected>Selecione seu cargo</option>
+                <option value="Sócio/CEO">Sócio/CEO</option>
+                <option value="CFO">CFO</option>
+                <option value="Gerente/Coordenador Financeiro">Gerente/Coordenador Financeiro</option>
+                <option value="Analista Financeiro">Analista Financeiro</option>
+                <option value="Outros">Outros</option>
+              </select>
+            </div>
+            
+            <p id="ag-hint" style="display:none; color:var(--red); font-size:12px; margin-top:8px; line-height:1.4;"></p>
+            <div class="ag-actions">
+              <button id="ag-btn" onclick="unlockAnalysis()">Conferir resultados detalhados &rarr;</button>
+              <button id="ag-btn-back" onclick="goBackFromGate()">Voltar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- WhatsApp CTA -->
+        <div class="callout" id="callout"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    window.USE_MODERN_LAYOUT = true; // Set to false to revert back to the 4 KPI boxes layout if you don't like it.
+    window.ENABLE_DETAILS_DRILLDOWN = true; // Set to false to remove the "Ver análise detalhada por módulo" button and show details immediately
+
+    function smoothScrollTo(element, duration) {
+      const startY = window.scrollY || window.pageYOffset;
+      const targetY = element.getBoundingClientRect().top + startY - 20;
+      const diff = targetY - startY;
+      let startTime = null;
+
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = timestamp - startTime;
+        const t = Math.min(progress / duration, 1);
+        const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        window.scrollTo(0, startY + diff * ease);
+        if (progress < duration) {
+          requestAnimationFrame(step);
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    function toggleDetailedAnalysis() {
+      const wrap = document.getElementById('detailed-analysis-wrapper');
+      const btnFn = document.getElementById('btn-show-detailed');
+      const shadow = document.getElementById('analysis-shadow');
+      if (wrap.style.display === 'none') {
+        wrap.style.display = 'block';
+        if (shadow) shadow.style.opacity = '1';
+        setTimeout(() => {
+          wrap.style.opacity = '1';
+          wrap.style.transform = 'translateY(0px)';
+          if (shadow) shadow.style.opacity = '0';
+          smoothScrollTo(document.getElementById('product-tabs'), 1200);
+        }, 10);
+        btnFn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg> Ocultar análise detalhada`;
+      } else {
+        wrap.style.opacity = '0';
+        wrap.style.transform = 'translateY(-40px)';
+        if (shadow) shadow.style.opacity = '1';
+        setTimeout(() => {
+          wrap.style.display = 'none';
+        }, 800);
+        btnFn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg> Ver análise detalhada por módulo`;
+        smoothScrollTo(document.getElementById('kpis-macro'), 900);
+      }
+    }
+
+    // ══════════════════════════════════════════════════
+    // CONSTANTES COMPARTILHADAS (da planilha Premissas BASE)
+    // ══════════════════════════════════════════════════
+    const CLT  = 1.55;
+    const HM   = 176;
+    // ERP_C = custo_bruto × 20% rateio financeiro (Premissas BASE R23-R27)
+    const CUSTO_ERP = 0.40;
+    const PAY_C = { pix:9.4, ted:10.12, boleto:0 };
+    const BOLETO_BANCO   = 3.50;   // Premissas BASE R15
+    const BOLETO_BAIXA   = 0.80;   // Premissas BASE R17
+    const BOLETO_PAGGO   = 1.80;   // Premissas BASE R16
+    const WHATSAPP_PAGGO = 1.47;
+    const VAN_POR_COBRANCA   = 2.10; // Tarifa VAN por cobrança (taxa por transação)
+    const VAN_BANCARIA_MENSAL = 900; // Assinatura VAN: R$900/CNPJ/mês (1 CNPJ por 4 contas)
+    const VAN_PAYOUT     = 5.00;   // Tarifa CNAB remessa
+    const ERP_TESOURA_CICLO = 25.00; // Módulo tesouraria ERP: R$25/ciclo (CLAUDE.md spec)
+    const PAGGO_PAYOUT_CUSTO = 3.50; // Premissas BASE R29
+
+    function cpm(sal)   { return (sal * CLT) / (HM * 60); }
+    function cpmPL(sal) { return sal / (HM * 60); }
+
+    // ══════════════════════════════════════════════════
+    // VOLUME CONDITIONAL FACTOR (Calculadora BASE R41-R49)
+    // Multiplica o tempo total mensal por um fator de escala
+    // ══════════════════════════════════════════════════
+    function volFactorPayin(qtd) {
+      if (qtd >= 700) return 0.65;
+      if (qtd >= 500) return 0.70;
+      if (qtd >= 350) return 0.80;
+      if (qtd >= 200) return 0.90;
+      return 1.0;
+    }
+    function volFactorPayout(qtd) {
+      if (qtd >= 2500) return 0.65;
+      if (qtd >= 1500) return 0.70;
+      if (qtd >= 1000) return 0.80;
+      if (qtd >   500) return 0.90;
+      return 1.0;
+    }
+
+    // ══════════════════════════════════════════════════
+    // PAYOUT DATA (extraído da Calculadora BASE)
+    // ══════════════════════════════════════════════════
+    const PAYOUT_FASES = ['1. Recebimento do documento fiscal','2. Lançamento','3. Aprovação Interna','4. Envio ao Banco','5. Aprovação Sócio','6. Processamento','7. Baixa e Arquivamento'];
+
+    // Mapeamento: cenário consolidado → cenário payout
+    // erp → c1, planilha → c2, erp_van → c31
+    //
+    // Phase scaling modes (from Excel formula in R25):
+    //   F1 (Recebimento):       × qtd
+    //   F2 (Lançamento):        × qtd
+    //   F3 (Aprovação Interna): × 22 (daily)
+    //   F4 (Envio ao Banco):    × qtd
+    //   F5 (Aprovação Sócio):   × 22 (daily)
+    //   F6 (Processamento):     × qtd (tarifa)
+    //   F7 (Baixa):             × qtd
+    //
+    // tempos = [F1, F2, F3, F4, F5, F6, F7] per unit (min)
+    // custos = [F1, F2, F3, F4, F5, F6, F7] per unit (R$)
+    // scaleMode: 'qtd' = multiply by qtd_pagamentos, 'day' = multiply by 22 working days
+    const PAYOUT_SCALE = ['qtd','qtd','day','qtd','day','qtd','qtd'];
+
+    const PAYOUT_BASE = {
+      c1:  { label:'ERP', usaERP:true,  usaVAN:false, tempos:[6, 4, 3, 2.5, 25, 0, 2.05] },
+      c2:  { label:'Planilha', usaERP:false, usaVAN:false, tempos:[6.5, 6, 3.5, 2.5, 25, 0, 6] },
+      c31: { label:'ERP + VAN Bancária', usaERP:true, usaVAN:true, tempos:[5.5, 4, 2, 0, 25, 0, 0.05] },
+    };
+
+    // Duracoes per phase: [analista, gestor, sócio]
+    // Based on Excel Calculadora BASE cost columns
+    const PAYOUT_DURACOES = {
+      c1: [[6,0,0],[4,0,0],[0,3,0],[2.5,0,0],[0,0,25],[0,0,0],[3,0,0]],
+      c2: [[6.5,0,0],[6,0,0],[0,3.5,0],[2.5,0,0],[0,0,25],[0,0,0],[6.0,0,0]],
+      c31: [[5.5,0,0],[4,0,0],[0,2,0],[0,0,0],[0,0,25],[0,0,0],[0.05,0,0]],
+      c4: [[0,0,0],[4.95,0,0],[0,1.5,0],[0,0,0],[0,0,5.2],[0,0,0],[1.0,0,0]]
+    };
+
+    // Paggo reference tempos (from C4 — Paggo Payout sheet)
+    const PAYOUT_PAGGO_TEMPOS = [0, 4.95, 1.5, 0, 5.2, 0, 0.01];
+
+    // Timeline atividades Payout
+    const PAYOUT_TL_CLI = {
+      c1: [
+        { label: 'Receber documento do fornecedor, conferir CNPJ, valor e dados bancários', tMin: 6, cargo: 'A' },
+        { label: 'Importar XML no ERP, vincular ao contrato e definir parcelas', tMin: 4, cargo: 'A' },
+        { label: 'Gestor acessa ERP, revisa pendências e aprova lote de títulos', tMin: null, tDay: 3, cargo: 'G', amort: true },
+        { label: 'Gerar arquivo CNAB240 no ERP e fazer upload manual no portal do banco', tMin: null, tDay: 5, cargo: 'A', amort: true },
+        { label: 'Sócio acessa portal bancário e assina digitalmente o lote de pagamentos', tMin: null, tDay: 10, cargo: 'S', amort: true },
+        { label: 'Banco debita tarifa por transação (PIX / TED / Boleto)', tMin: 0, cargo: 'TARIFA' },
+        { label: 'Conferir extrato bancário, dar baixa manual e arquivar documento no ERP', tMin: 2.1, cargo: 'A' }
+      ],
+      c2: [
+        { label: 'Receber, localizar por e-mail ou fisicamente e conferir documento manualmente', tMin: 10.5, cargo: 'A' },
+        { label: 'Lançar documento na planilha, criar controle de parcelas e atualizar fluxo de caixa', tMin: 6, cargo: 'A' },
+        { label: 'Gestor recebe planilha por e-mail, revisa aprovações e responde', tMin: null, tDay: 3.5, cargo: 'G', amort: true },
+        { label: 'Digitar cada pagamento manualmente no internet banking', tMin: null, tDay: 3, cargo: 'A', amort: true },
+        { label: 'Sócio acessa portal bancário e assina digitalmente o lote de pagamentos', tMin: null, tDay: 10, cargo: 'S', amort: true },
+        { label: 'Banco debita tarifa por transação (PIX / TED / Boleto)', tMin: 0, cargo: 'TARIFA' },
+        { label: 'Abrir extrato, atualizar status de cada pagamento e fluxo de caixa na planilha', tMin: 6, cargo: 'A' }
+      ],
+      c31: [
+        { label: 'Receber documento — ERP valida CNPJ e dados do fornecedor automaticamente', tMin: 7.5, cargo: 'A' },
+        { label: 'Importar XML no ERP, vincular ao contrato e confirmar parcelas', tMin: 5, cargo: 'A' },
+        { label: 'Gestor recebe notificação do ERP, revisa e aprova títulos', tMin: null, tDay: 2, cargo: 'G', amort: true },
+        { label: 'VAN Bancária transmite remessa ao banco automaticamente via VAN', tMin: 0, cargo: 'AUTO' },
+        { label: 'Sócio recebe alerta e assina lote no portal bancário', tMin: null, tDay: 10, cargo: 'S', amort: true },
+        { label: 'Banco debita tarifa por transação (PIX / TED / Boleto)', tMin: 0, cargo: 'TARIFA' },
+        { label: 'VAN Bancária envia arquivo de retorno — analista confere exceções', tMin: 0.1, cargo: 'A' }
+      ]
+    };
+
+    const PAYOUT_TL_PGG = [
+      { label: 'Paggo captura documento automaticamente via certificado A1 — sem ação manual', tMin: 0, cargo: 'AUTO' },
+      { label: 'Analista abre solicitação de pagamento e vincula fornecedor e documento no Paggo', tMin: 5, cargo: 'A' },
+      { label: 'Gestor recebe notificação push e aprova com 1 clique no app Paggo', tMin: null, tDay: 1.5, cargo: 'G', amort: true },
+      { label: 'Sócio recebe notificação e aprova lote de pagamentos via painel Paggo', tMin: null, tDay: 5.2, cargo: 'S', amort: true },
+      { label: 'Paggo executa os pagamentos e registra baixa automaticamente', tMin: 0, cargo: 'AUTO' },
+      { label: 'Sistema registra conciliação — analista só atua se houver exceção', tMin: 0, cargo: 'AUTO' }
+    ];
+
+    // Sub-atividades Payout
+    const PAYOUT_SUBS_CLI = {
+      c1: [
+        [{ label:'Recebe e localiza a NF na caixa de entrada', tMin:1, cargo:'A' },{ label:'Confere CNPJ e razão social do tomador', tMin:1, cargo:'A' },{ label:'Confere valor, vencimento e condições comerciais', tMin:1, cargo:'A' },{ label:'Identifica e valida o centro de custo', tMin:1, cargo:'A' },{ label:'Confere e atualiza dados bancários do fornecedor no ERP', tMin:2, cargo:'A' }],
+        [{ label:'Importa XML ou lança NF manualmente no ERP', tMin:1, cargo:'A' },{ label:'Vincula NF ao contrato ou pedido de compra', tMin:1.5, cargo:'A' },{ label:'Define parcelas e datas de vencimento', tMin:1.5, cargo:'A' }],
+        [{ label:'Acessa relatório de pagamentos a aprovar no ERP', tDay:1, cargo:'G' },{ label:'Valida valores, CC e vínculo contratual de cada título', tDay:1, cargo:'G' },{ label:'Aprova ou rejeita cada título no ERP', tDay:1, cargo:'G' }],
+        [{ label:'Gera arquivo de remessa CNAB240 no ERP e faz upload no banco', tDay:5, cargo:'A' }],
+        [{ label:'Acessa portal do banco e revisa lista de pagamentos pendentes', tDay:5, cargo:'S' },{ label:'Assina lote com token ou app bancário', tDay:5, cargo:'S' }],
+        [{ label:'Banco processa e efetiva os pagamentos (TED/PIX/boleto)', tMin:0, cargo:'TARIFA' }],
+        [{ label:'Confere extrato bancário x títulos pagos (conciliação manual)', tMin:1, cargo:'A' },{ label:'Realiza baixa manual de cada título no ERP com data real', tMin:1, cargo:'A' },{ label:'Salva comprovante e arquiva vinculado ao título no ERP', tMin:0.1, cargo:'A' }],
+      ],
+      c2: [
+        [{ label:'Recebe, localiza e salva NF manualmente em pasta local/Drive', tMin:2.5, cargo:'A' },{ label:'Confere CNPJ e razão social', tMin:2.5, cargo:'A' },{ label:'Confere valor e vencimento contra e-mail de pedido ou contrato em papel', tMin:2.5, cargo:'A' },{ label:'Identifica centro de custo consultando planilha de obras', tMin:3, cargo:'A' }],
+        [{ label:'Lança NF manualmente na planilha de CP', tMin:3, cargo:'A' },{ label:'Cria linha de controle de parcelas na planilha', tMin:2, cargo:'A' },{ label:'Atualiza aba de fluxo de caixa manualmente', tMin:1, cargo:'A' }],
+        [{ label:'Gestor recebe planilha/relatório por e-mail e abre arquivo', tDay:1.5, cargo:'G' },{ label:'Revisa cada linha da planilha', tDay:1, cargo:'G' },{ label:'Responde aprovação por e-mail, WhatsApp ou anotação na planilha', tDay:1, cargo:'G' }],
+        [{ label:'Analista recebe aprovação e prepara lista de pagamentos em planilha', tDay:1, cargo:'A' },{ label:'Digita cada pagamento no internet banking', tDay:2, cargo:'A' }],
+        [{ label:'Sócio acessa internet banking e revisa pagamentos um a um', tDay:5, cargo:'S' },{ label:'Assina lote com token ou app bancário', tDay:5, cargo:'S' }],
+        [{ label:'Banco processa e efetiva os pagamentos (TED/PIX/boleto)', tMin:0, cargo:'TARIFA' }],
+        [{ label:'Abre extrato bancário e identifica pagamentos realizados', tMin:2, cargo:'A' },{ label:'Atualiza status de cada linha na planilha de CP', tMin:1.5, cargo:'A' },{ label:'Atualiza planilha de fluxo de caixa com saída efetivada', tMin:1, cargo:'A' },{ label:'Salva comprovante em pasta e registra na planilha de controle', tMin:1.5, cargo:'A' }],
+      ],
+      c31: [
+        [{ label:'Recebe e localiza a NF na caixa de entrada', tMin:1.5, cargo:'A' },{ label:'Confere CNPJ e razão social (ERP valida via XML)', tMin:1.5, cargo:'A' },{ label:'Confere valor, vencimento e condições no ERP', tMin:1.5, cargo:'A' },{ label:'Valida centro de custo (sugestão automática pelo ERP)', tMin:1.5, cargo:'A' },{ label:'Confirma dados bancários do fornecedor (já cadastrado no ERP)', tMin:1.5, cargo:'A' }],
+        [{ label:'Importa XML da NF-e diretamente no ERP (auto-preenchimento)', tMin:1.5, cargo:'A' },{ label:'Vincula NF ao contrato ou pedido de compra', tMin:1.5, cargo:'A' },{ label:'Confirma parcelas e datas de vencimento geradas pelo ERP', tMin:2, cargo:'A' }],
+        [{ label:'Gestor recebe notificação do ERP e acessa dashboard de aprovações', tDay:1, cargo:'G' },{ label:'Valida e aprova títulos no ERP (com filtros e alertas de desvio)', tDay:1, cargo:'G' }],
+        [{ label:'VAN Bancária transmite o arquivo ao banco automaticamente', tMin:0, cargo:'AUTO' }],
+        [{ label:'Sócio recebe alerta e acessa portal do banco para assinar', tDay:5, cargo:'S' },{ label:'Assina lote com token ou app bancário', tDay:5, cargo:'S' }],
+        [{ label:'Banco processa pagamentos e envia retorno via VAN Bancária', tMin:0, cargo:'TARIFA' }],
+        [{ label:'VAN Bancária envia arquivo de retorno ao ERP automaticamente', tMin:0, cargo:'AUTO' },{ label:'Analista confere exceções (falhas/rejeições) e trata manualmente', tMin:0.1, cargo:'A' },{ label:'Comprovante arquivado automaticamente pelo ERP via retorno VAN', tMin:0, cargo:'AUTO' }],
+      ]
+    };
+
+    const PAYOUT_SUBS_PGG = [
+      [{ label:'Paggo captura NF automaticamente via certificado A1 (XML importado)', tMin:0, cargo:'AUTO' },{ label:'CNPJ, razão social, valor e vencimento validados automaticamente pelo XML', tMin:0, cargo:'AUTO' }],
+      [{ label:"Clica em 'Contas a Pagar' e 'Nova Solicitação'", tMin:0.4, cargo:'A' },{ label:'Busca pela contraparte e vincula NF ao fornecedor', tMin:1.6, cargo:'A' },{ label:'Confirma alocação do centro de custo', tMin:1.5, cargo:'A' },{ label:'Seleciona método de pagamento e confirma data de agendamento', tMin:1.4, cargo:'A' },{ label:"Clica em 'Continuar' para concluir solicitação", tMin:0.2, cargo:'A' }],
+      [{ label:'Gestor recebe notificação e acessa painel de aprovações na Paggo', tDay:1.3, cargo:'G' },{ label:"Aprova pagamento (clique em 'Aprovar')", tDay:0.2, cargo:'G' }],
+      [{ label:'Paggo gerencia envio e agendamento automaticamente', tMin:0, cargo:'AUTO' }],
+      [{ label:'Sócio recebe notificação e acessa painel de aprovações na Paggo', tDay:2, cargo:'S' },{ label:"Aprova pagamento (clique em 'Aprovar')", tDay:0.2, cargo:'S' }],
+      [{ label:'Paggo executa os pagamentos automaticamente na data agendada', tMin:0, cargo:'AUTO' },{ label:'Baixa automática do título após confirmação do banco', tMin:0, cargo:'AUTO' }],
+      [{ label:'Comprovante arquivado automaticamente pela Paggo', tMin:0, cargo:'AUTO' },{ label:'Analista atua apenas em exceções (falhas/rejeições) — casos raros', tMin:0, cargo:'AUTO' }],
+    ];
+
+    // ══════════════════════════════════════════════════
+    // PAYIN DATA
+    // ══════════════════════════════════════════════════
+    // PAYIN uses 8 phases from Excel Calculadora BASE
+    // Scale modes from Excel Calculadora BASE:
+    //   Planilha: F1=×qtd (manual), F3,F6,F8=×22 (daily), others=×qtd
+    //   ERP/VAN:  F1=×22 (batch CNAB), F3,F6,F8=×22 (daily), others=×qtd
+    const PAYIN_FASES = ['1. Emissão boleto','2. Envio ao cliente','3. Controle diário inadimplência','4. Controle de inadimplência','5. Correção monetária','6. Baixa e conciliação','7. Renegociação e 2ª via','8. Relatórios e controle gerencial'];
+    const PAYIN_SCALE = {
+      c1: ['qtd','qtd','day','qtd','qtd','day','qtd','day'],  // Planilha: F1 manual = ×qtd
+      c2: ['day','qtd','day','qtd','qtd','day','qtd','day'],  // ERP: F1 CNAB batch = ×22 (TIME only)
+      c3: ['day','qtd','day','qtd','qtd','day','qtd','day'],  // ERP+VAN: F1 CNAB batch = ×22 (TIME only)
+      c4: ['day','qtd','day','qtd','qtd','day','qtd','day'],  // Paggo (reference, TIME only)
+    };
+    // COST scale: F1 Emissão always ×qtd (Excel Calculadora BASE formula), even for ERP batch
+    const PAYIN_COST_SCALE = ['qtd','qtd','day','qtd','qtd','day','qtd','day'];
+
+    // ══════════════════════════════════════════════════
+    // DURAÇÕES = [Analista, Gestor, Sócio]
+    // ══════════════════════════════════════════════════
+    const PAYIN_DURACOES = {
+      //     F1-Emissão     F2-Envio       F3-Ctrl diário F4-Cobrança    F5-Correção    F6-Baixa       F7-Renegoc     F8-Relatórios
+      c1: [[2,0,0],       [3.1,0,0],     [7.5,0,0],     [0.96,0.2925,0],[0.1268,0,0], [21,0,0],      [0.5655,0.234,0],[3,15,0]],
+      c2: [[10.5,0,0],    [1.75,0,0],    [1.5,0,0],     [1.04,0.0585,0],[0.1073,0,0],  [5.5,0,0],     [0.39,0.117,0],[3,6,0]],
+      c3: [[0.5,0,0],     [1,0,0],       [1.5,0,0],     [1.0985,0,0],  [0.1073,0,0],  [1,0,0],       [0.507,0,0],   [9,0,0]],
+      c4: [[0,0,0],       [0.2,0,0],     [0,0,0],       [0,0,0],       [0,0,0],       [2,0,0],       [0.32,0.429,0],[0.75,0,0]]
+    };
+
+    // Sub-atividades PAYIN
+    const PAYIN_SUBS_CLI = {
+      c1: [
+        [{ label:'Acessa portal do banco e gera boleto manualmente', tMin:2, cargo:'A' }],
+        [{ label:'Envia boleto por e-mail manualmente ao cliente', tMin:2, cargo:'A' },{ label:'Registra o envio na planilha de controle', tMin:1.1, cargo:'A' }],
+        [{ label:'Abre planilha diariamente e verifica vencimentos não pagos', tMin:7.5, cargo:'A' }],
+        [{ label:'Liga ou manda mensagem manual ao cliente inadimplente (×16%)', tMin:1.2525, cargo:'A', pct:true }],
+        [{ label:'Calcula correção monetária manualmente (×3.9%)', tMin:0.12675, cargo:'A', pct2:true }],
+        [{ label:'Confere extrato bancário e dá baixa manualmente em cada cobrança', tMin:15, cargo:'A' },{ label:'Concilia valores recebidos vs. emitidos na planilha', tMin:6, cargo:'A' }],
+        [{ label:'Negocia com cliente inadimplente e reemite boleto (×3.9%)', tMin:0.7995, cargo:'G', pct2:true }],
+        [{ label:'Monta relatório de cobrança e inadimplência manualmente', tMin:18, cargo:'A' }],
+      ],
+      c2: [
+        [{ label:'Acessa módulo CR e gera remessa CNAB de boletos', tMin:5, cargo:'A' },{ label:'Faz upload do arquivo CNAB no internet banking', tMin:5.5, cargo:'A' }],
+        [{ label:'Envia boleto por e-mail (integrado ou manual) ao cliente', tMin:1.75, cargo:'A' }],
+        [{ label:'Verifica relatório de vencidos no ERP', tMin:1.5, cargo:'A' }],
+        [{ label:'Liga ou manda mensagem ao inadimplente (×16%)', tMin:1.0985, cargo:'A', pct:true }],
+        [{ label:'Confere e valida correção gerada pelo ERP (×3.9%)', tMin:0.10725, cargo:'A', pct2:true }],
+        [{ label:'Faz download do retorno CNAB e importa no ERP', tMin:3, cargo:'A' },{ label:'Confere e trata divergências de baixa', tMin:2.5, cargo:'A' }],
+        [{ label:'Emite 2ª via via novo CNAB e reenvia (×3.9%)', tMin:0.507, cargo:'G', pct2:true }],
+        [{ label:'Gera relatório de cobrança pelo ERP e exporta', tMin:9, cargo:'A' }],
+      ],
+      c3: [
+        [{ label:'ERP gera boleto e envia automaticamente via VAN Bancária', tMin:0.5, cargo:'A' }],
+        [{ label:'VAN Bancária envia boleto ao cliente', tMin:1, cargo:'A' }],
+        [{ label:'Acessa relatório do ERP diariamente para ver inadimplentes', tMin:1.5, cargo:'A' }],
+        [{ label:'Entra em contato com inadimplentes (×16%)', tMin:1.0985, cargo:'A', pct:true }],
+        [{ label:'Aplica correção monetária via módulo do ERP (×3.9%)', tMin:0.10725, cargo:'A', pct2:true }],
+        [{ label:'VAN retorna baixa automática — analista confere exceções', tMin:1, cargo:'A' }],
+        [{ label:'Negocia e reemite boleto (×3.9%)', tMin:0.507, cargo:'G', pct2:true }],
+        [{ label:'Gera relatório de cobrança pelo ERP', tMin:9, cargo:'A' }],
+      ]
+    };
+
+    const PAYIN_SUBS_PGG = [
+      [{ label:'Boleto e link de pagamento gerados automaticamente pela Paggo', tMin:0, cargo:'AUTO' }],
+      [{ label:'Paggo envia cobrança via WhatsApp automatizado', tMin:0.2, cargo:'A' }],
+      [{ label:'Dashboard atualiza automaticamente — sem ação manual', tMin:0, cargo:'AUTO' }],
+      [{ label:'Paggo envia cobranças automáticas por WhatsApp (×16%)', tMin:0, cargo:'AUTO' }],
+      [{ label:'Correção monetária aplicada automaticamente pela Paggo', tMin:0, cargo:'AUTO' }],
+      [{ label:'Conciliação automática — analista confere exceções', tMin:2, cargo:'A' }],
+      [{ label:'Cliente renegocia via portal Paggo — gestor valida (×3.9%)', tMin:0.749, cargo:'G', pct2:true }],
+      [{ label:'Relatórios gerados automaticamente no dashboard Paggo', tMin:0.9, cargo:'A' }],
+    ];
+
+    // ══════════════════════════════════════════════════
+    // TRANSFERÊNCIAS DATA
+    // ══════════════════════════════════════════════════
+    const TRANSF_FASES = ['1. Coleta de saldos','2. Levantamento pgtos agendados','3. Análise necessidade/origem','4. Execução transferências','5. Confirmação e registro'];
+
+    // C1=Planilha, C2=ERP, C3=Paggo
+    // Mapeamento: erp → C2, planilha → C1, erp_van → C2 (não tem c3 para erp_van)
+
+    const TRANSF_SUBS_CLI = {
+      c1: [
+        [{ label:'Acessa cada portal bancário e anota saldo manualmente', tMin:2.5, cargo:'A', perConta:true }],
+        [{ label:'Consulta agendamentos em cada internet banking', tMin:4.0, cargo:'A', perConta:true }],
+        [{ label:'Analisa quais contas precisam de transferência (20% das contas)', tMin:3.1, cargo:'A', perContaPct:true }],
+        [{ label:'Executa transferência manualmente no internet banking (×2 para ida e volta)', tMin:0.75, cargo:'A', perContaPctX2:true }],
+        [{ label:'Confere execução e registra em planilha de controle', tMin:3.8, cargo:'A', fixo:true }],
+      ],
+      c2: [
+        [{ label:'Consulta saldos no módulo tesouraria do ERP (dashboard único)', tMin:1.15, cargo:'A', fixo:true }],
+        [{ label:'Revisa painel de pagamentos agendados no ERP', tMin:1.5, cargo:'A', fixo:true }],
+        [{ label:'Analisa necessidade de transferência por conta (20% das contas)', tMin:2.1, cargo:'A', perContaPct:true }],
+        [{ label:'Executa transferência pelo ERP (módulo tesouraria)', tMin:4.0, cargo:'A', perTransf:true }],
+        [{ label:'Confere execução e registra no ERP (20% das contas)', tMin:0.7, cargo:'A', perContaPct:true }],
+      ]
+    };
+
+    const TRANSF_SUBS_PGG = [
+      [{ label:'Paggo consolida saldos automaticamente de todas as contas', tMin:0.75, cargo:'A', fixo:true }],
+      [{ label:'Pagamentos agendados já visíveis no painel — sem ação manual', tMin:0, cargo:'AUTO' }],
+      [{ label:'Paggo identifica contas com déficit e sugere transferências', tMin:0.8, cargo:'A', perConta:true },{ label:'Gestor revisa e aprova lote com um clique', tMin:0.25, cargo:'G', fixo:true }],
+      [{ label:'Paggo executa transferências aprovadas automaticamente', tMin:0, cargo:'AUTO' }],
+      [{ label:'Registro e confirmação automáticos pela Paggo', tMin:0, cargo:'AUTO' }],
+    ];
+
+    // ══════════════════════════════════════════════════
+    // ESTADO GLOBAL
+    // ══════════════════════════════════════════════════
+    let S = {
+      sc: null, salA: 3500, salG: 12000, salS: 30000,
+      qtdPayout: 200, pctPix: 50, pctTed: 10, pctBoleto: 40,
+      erp: 'uau', step: 1,
+      qtdPayin: 150, pctInadimplencia: 16, pctEscalacao: 3.9,
+      tarifaBoletoBanco: 3.50,
+      nContasTotal: 21, nCiclos: 20
+    };
+
+    // ══════════════════════════════════════════════════
+    // CENÁRIO → CÓDIGO POR PRODUTO
+    // ══════════════════════════════════════════════════
+    function payoutSc() {
+      if (S.sc === 'erp') return 'c1';
+      if (S.sc === 'planilha') return 'c2';
+      if (S.sc === 'erp_van') return 'c31';
+      return 'c1';
+    }
+    function payinSc() {
+      if (S.sc === 'erp') return 'c2';
+      if (S.sc === 'planilha') return 'c1';
+      if (S.sc === 'erp_van') return 'c3';
+      return 'c2';
+    }
+    function transfSc() {
+      if (S.sc === 'erp') return 'c2';
+      if (S.sc === 'planilha') return 'c1';
+      if (S.sc === 'erp_van') return 'c2'; // não tem c3 para transf
+      return 'c2';
+    }
+
+    // ══════════════════════════════════════════════════
+    // STEPPER
+    // ══════════════════════════════════════════════════
+    const SLABELS = ['Premissas', 'Resultado'];
+    function drawStepper(active) {
+      const el = document.getElementById('stepper');
+      let h = '';
+      for (let i = 0; i < 2; i++) {
+        const done = i+1 < active, isA = i+1 === active;
+        h += `<div class="s-item"><div class="s-dot ${done?'done':isA?'active':''}">${done?'✓':i+1}</div><div class="s-label ${done?'done':isA?'active':''}">${SLABELS[i]}</div></div>`;
+        if (i < 1) h += `<div class="s-line"></div>`;
+      }
+      el.innerHTML = h;
+    }
+
+    // ══════════════════════════════════════════════════
+    // NAVIGATION
+    // ══════════════════════════════════════════════════
+    function nav(to) {
+      if (to === 2) readInputs();
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('pg'+to).classList.add('active');
+      S.step = to;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    
+    var _analysisUnlocked = false;
+
+    function showResult() {
+      readInputs();
+      calcAll();
+      nav(2);
+      window.scrollTo(0, 0);
+      _analysisUnlocked = false;
+      window._gateShown = false;
+      document.getElementById('analysis-gate').style.display = 'none';
+      document.getElementById('detailed-analysis-wrapper').style.filter = 'none';
+      document.getElementById('detailed-analysis-wrapper').style.pointerEvents = '';
+      document.getElementById('detailed-analysis-wrapper').style.userSelect = '';
+      window._gateShown = true;
+      document.getElementById('analysis-gate').style.display = 'block';
+      document.getElementById('analysis-gate').scrollTop = 0;
+      document.body.classList.add('gate-open');
+      document.getElementById('detailed-analysis-wrapper').style.filter = 'blur(6px)';
+      document.getElementById('detailed-analysis-wrapper').style.pointerEvents = 'none';
+      document.getElementById('detailed-analysis-wrapper').style.userSelect = 'none';
+    }
+
+    function showFmtTip(show) {
+      var t = document.getElementById('ag-fmt-tip');
+      if (t) t.style.display = show ? 'block' : 'none';
+    }
+
+    function goBackFromGate() {
+      document.getElementById('analysis-gate').style.display = 'none';
+      document.body.classList.remove('gate-open');
+      nav(1);
+    }
+
+    // ── HubSpot Forms API ─────────────────────────────────────────
+    const HUBSPOT_PORTAL_ID = '23789340';
+    const HUBSPOT_FORM_GUID = '45b108fc-6585-4bdb-a41f-3df3e1f6966d';
+    function submitToHubspot(data) {
+      try {
+        // Normaliza telefone para formato E.164 (+55 + DDD + número, só dígitos)
+        if (data.phone) {
+          const digits = data.phone.replace(/\D/g, '');
+          if (digits.length === 10 || digits.length === 11) {
+            data.phone = '+55' + digits;
+          }
+        }
+
+        const payload = {
+          fields: Object.keys(data).map(k => ({ name: k, value: data[k] || '' })),
+          context: {
+            pageUri: window.location.href,
+            pageName: document.title || 'Paggo - Calculadora ROI'
+          }
+        };
+        // Adiciona o cookie hubspotutk se existir (associa a sessão de tracking do HubSpot)
+        const m = document.cookie.match(/hubspotutk=([^;]+)/);
+        if (m) payload.context.hutk = m[1];
+
+        fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${HUBSPOT_PORTAL_ID}/${HUBSPOT_FORM_GUID}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(async r => {
+          if (!r.ok) {
+            const body = await r.text().catch(() => '');
+            console.error('HubSpot API ' + r.status + ':', body);
+          } else {
+            console.log('HubSpot submit OK');
+          }
+        }).catch(err => console.warn('HubSpot submit failed:', err));
+      } catch (err) {
+        console.warn('HubSpot submit error:', err);
+      }
+    }
+
+    function formatPhone(el) {
+      let d = (el.value || '').replace(/\D/g, '').slice(0, 11);
+      let out = '';
+      if (d.length === 0) { el.value = ''; return; }
+      out = '(' + d.slice(0, 2);
+      if (d.length >= 3) out += ') ' + d.slice(2, d.length > 10 ? 7 : 6);
+      if (d.length >= (d.length > 10 ? 8 : 7)) out += '-' + d.slice(d.length > 10 ? 7 : 6, 11);
+      el.value = out;
+    }
+
+    function unlockAnalysis() {
+      const firstNameEl = document.getElementById('ag-firstname');
+      const lastNameEl = document.getElementById('ag-lastname');
+      const phoneEl = document.getElementById('ag-phone');
+      const companyEl = document.getElementById('ag-company');
+      const emailEl = document.getElementById('ag-email');
+      const roleEl = document.getElementById('ag-role');
+      const btn = document.getElementById('ag-btn');
+      const hint = document.getElementById('ag-hint');
+
+      let hasError = false;
+      let errorMsg = 'Preencha os campos corretamente para continuar.';
+
+      // Nome e sobrenome: apenas letras (incluindo acentos) e espaços
+      const onlyLettersRe = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/;
+      const letterFields = [
+        { el: firstNameEl, label: 'Nome' },
+        { el: lastNameEl,  label: 'Sobrenome' }
+      ];
+      letterFields.forEach(({ el, label }) => {
+        const v = (el.value || '').trim();
+        if (v.length < 2 || !onlyLettersRe.test(v)) {
+          el.style.borderColor = 'var(--red)';
+          hasError = true;
+          if (v.length >= 2 && !onlyLettersRe.test(v)) {
+            errorMsg = `${label} deve conter apenas letras.`;
+          }
+        } else {
+          el.style.borderColor = '';
+        }
+      });
+
+      // Cargo (dropdown): precisa ter um valor selecionado
+      const roleVal = (roleEl.value || '').trim();
+      if (!roleVal) {
+        roleEl.style.borderColor = 'var(--red)';
+        hasError = true;
+        errorMsg = 'Selecione um cargo.';
+      } else {
+        roleEl.style.borderColor = '';
+      }
+
+      // Empresa: pelo menos 2 caracteres (sem restrição de tipo)
+      const companyVal = (companyEl.value || '').trim();
+      if (companyVal.length < 2) {
+        companyEl.style.borderColor = 'var(--red)';
+        hasError = true;
+      } else {
+        companyEl.style.borderColor = '';
+      }
+
+      // Telefone: 10 (fixo) ou 11 (celular) dígitos numéricos
+      const phoneDigits = (phoneEl.value || '').replace(/\D/g, '');
+      if (phoneDigits.length < 10 || phoneDigits.length > 11) {
+        phoneEl.style.borderColor = 'var(--red)';
+        hasError = true;
+        if (phoneDigits.length > 0) errorMsg = 'Telefone inválido. Use DDD + número (10 ou 11 dígitos).';
+      } else {
+        phoneEl.style.borderColor = '';
+      }
+
+      // E-mail corporativo: formato válido + bloqueio de domínios pessoais conhecidos
+      const emailVal = (emailEl.value || '').trim().toLowerCase();
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const personalDomains = [
+        'gmail.com', 'googlemail.com',
+        'hotmail.com', 'hotmail.com.br', 'outlook.com', 'outlook.com.br', 'live.com', 'msn.com',
+        'yahoo.com', 'yahoo.com.br', 'ymail.com',
+        'icloud.com', 'me.com', 'mac.com',
+        'aol.com', 'protonmail.com', 'proton.me', 'pm.me', 'tutanota.com', 'zoho.com',
+        'bol.com.br', 'uol.com.br', 'terra.com.br', 'ig.com.br', 'globo.com', 'globomail.com',
+        'r7.com', 'oi.com.br', 'bol.uol.com.br'
+      ];
+      const emailDomain = emailVal.includes('@') ? emailVal.split('@').pop() : '';
+      if (!emailVal || !emailRe.test(emailVal)) {
+        emailEl.style.borderColor = 'var(--red)';
+        hasError = true;
+        if (emailVal) errorMsg = 'Informe um e-mail válido.';
+      } else if (personalDomains.includes(emailDomain)) {
+        emailEl.style.borderColor = 'var(--red)';
+        hasError = true;
+        errorMsg = 'Use um e-mail corporativo (domínios pessoais como gmail, hotmail, yahoo não são aceitos).';
+      } else {
+        emailEl.style.borderColor = '';
+      }
+
+      if (hasError) {
+        if (hint) {
+          hint.style.display = 'block';
+          hint.textContent = errorMsg;
+        }
+        return;
+      }
+      
+      if (hint) hint.style.display = 'none';
+
+      // Envia dados para o HubSpot (fire-and-forget, não bloqueia o desbloqueio)
+      submitToHubspot({
+        firstname:        firstNameEl.value.trim(),
+        lastname:         lastNameEl.value.trim(),
+        email:            emailVal,
+        phone:            phoneEl.value.trim(),
+        company:          companyVal,
+        cargo_do_contato: roleEl.value.trim()
+      });
+
+      // GTM dataLayer: dispara evento de conversão (LinkedIn / Meta / Google Ads usam isso)
+      try {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'lead_unlocked',
+          lead: {
+            email:   emailVal,
+            company: companyVal,
+            role:    roleEl.value.trim(),
+            scenario: (typeof S !== 'undefined' && S.scenario) ? S.scenario : null
+          },
+          economia_mes_brl: (typeof window.totalEcoMes !== 'undefined') ? Math.round(window.totalEcoMes) : null,
+          horas_mes:        (typeof window.totalHorasMes !== 'undefined') ? Math.round(window.totalHorasMes) : null
+        });
+      } catch (e) { console.warn('dataLayer push failed:', e); }
+
+      _analysisUnlocked = true;
+      window._gateShown = false;
+      document.getElementById('analysis-gate').style.display = 'none';
+      document.body.classList.remove('gate-open');
+
+      const blurredWrapper = document.getElementById('blurred-charts-wrapper');
+      if (blurredWrapper) {
+        blurredWrapper.classList.remove('blur-data');
+      }
+
+      document.getElementById('detailed-analysis-wrapper').style.filter = 'none';
+      document.getElementById('detailed-analysis-wrapper').style.pointerEvents = '';
+      document.getElementById('detailed-analysis-wrapper').style.userSelect = '';
+      btn.innerHTML = '&#10003; Redirecionando...';
+      // Após destravar a paywall, levar usuário ao topo da página de resultado (frases flutuantes)
+      setTimeout(function(){
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 50);
+    }
+    function readInputs() {
+      S.salA = +document.getElementById('sal-a').value || 3500;
+      S.salG = +document.getElementById('sal-g').value || 12000;
+      S.salS = +document.getElementById('sal-s').value || 25000;
+      S.qtdPayout = +document.getElementById('qtd-payout').value || 200;
+      S.qtdPayin = +document.getElementById('qtd-payin').value || 200;
+      S.pctPixTed = +document.getElementById('pct-pixted').value || 60;
+      S.pctBoleto = 100 - S.pctPixTed;
+      S.pctInadimplencia = 16;
+      S.pctEscalacao = 3.9;
+      S.tarifaBoletoBanco = +document.getElementById('tarifa-boleto-banco').value || 3.50;
+      S.nContasTotal = +document.getElementById('n-contas-total').value || 21;
+      S.nCiclos = 20;
+    }
+
+    // ══════════════════════════════════════════════════
+    // SELECTIONS
+    // ══════════════════════════════════════════════════
+    var _inputsRevealed = false;
+    function revealEl(id, displayVal, delay) {
+      setTimeout(function() {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.style.display = displayVal;
+        requestAnimationFrame(function() { requestAnimationFrame(function() {
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        }); });
+      }, delay);
+    }
+    function revealInputs() {
+      if (_inputsRevealed) return;
+      _inputsRevealed = true;
+      var hint = document.getElementById('pg1-sc-hint');
+      if (hint) { hint.style.opacity = '0'; setTimeout(function(){ hint.style.display = 'none'; }, 300); }
+      revealEl('pg1-sal-section',   'block', 0);
+      revealEl('pg1-volumes-section','block', 80);
+      revealEl('pg1-confirm-btn-wrap','block', 160);
+      revealEl('pg1-impact-row',    'block', 220);
+    }
+
+    function pickSc(sc) {
+      const firstPick = S.sc === null;
+      S.sc = sc;
+      document.querySelectorAll('.sc-card').forEach(c => {
+        if (c.dataset.sc === sc) c.classList.add('sel');
+        else c.classList.remove('sel');
+      });
+      document.getElementById('btn-show-result').disabled = false;
+      // Salários padrão
+      document.getElementById('sal-a').value = 3500;
+      document.getElementById('sal-g').value = 12000;
+      document.getElementById('sal-s').value = 25000;
+      // Na primeira seleção de cenário, aplicar volumes base
+      if (firstPick) {
+        document.getElementById('qtd-payout').value = 1000;
+        document.getElementById('qtd-payin').value = 200;
+        document.getElementById('n-contas-total').value = 20;
+      }
+      revealInputs();
+      updateLivePreview();
+    }
+    function confirmarValores() {
+      revealEl('pg1-charts-col', 'flex', 0);
+      updateLivePreview();
+    }
+
+    function updatePaySliders(changer) {
+  const psPixted = document.getElementById('pct-pixted');
+  const psBoleto = document.getElementById('pct-boleto');
+  if (!psPixted || !psBoleto) return;
+  if (changer === 'pixted') psBoleto.value = 100 - parseInt(psPixted.value);
+  else if (changer === 'boleto') psPixted.value = 100 - parseInt(psBoleto.value);
+  const v1 = parseInt(psPixted.value);
+  const v2 = parseInt(psBoleto.value);
+  document.getElementById('pct-pixted-val').textContent = v1 + '%';
+  document.getElementById('pct-boleto-val').textContent = v2 + '%';
+  document.getElementById('pct-pixted').style.background = sliderBg(v1);
+  
+  
+  S.pctPixTed = v1;
+  S.pctBoleto = v2;
+  updateLivePreview();
+}
+function sliderBg(v) { const p=v+'%'; return `linear-gradient(to right,var(--orange) 0%,var(--orange) ${p},var(--border) ${p},var(--border) 100%)`; }
+        function updateLivePreview() {
+      if (S.sc === null) {
+        const liveBox = document.getElementById('live-preview-box');
+        if (liveBox) liveBox.innerHTML = 'Selecione um cenário acima para ver sua estimativa';
+        return;
+      }
+      readInputs();
+      calcAll();
+    }
+    function suggestPayDefaults() {
+      document.getElementById('pct-pixted').value = 60;
+      document.getElementById('pct-boleto').value = 40;
+      updatePaySliders('pixted');
+    }
+    
+    // ══════════════════════════════════════════════════
+    // PRODUCT TABS
+    // ══════════════════════════════════════════════════
+    function setProductTab(tab) {
+      ['payout','payin','transf'].forEach(t => {
+        document.getElementById('pane-'+t).classList.toggle('active', t===tab);
+        document.getElementById('ptab-'+t).classList.toggle('active', t===tab);
+      });
+    }
+
+    function setView(product, v) {
+      const isTable = v === 'table';
+      document.getElementById('view-table-'+product).style.display = isTable ? '' : 'none';
+      document.getElementById('swimlane-wrap-'+product).style.display = isTable ? 'none' : '';
+      const btns = document.querySelectorAll('#vt-'+product+' .vt-btn');
+      btns[0].classList.toggle('active', isTable);
+      btns[1].classList.toggle('active', !isTable);
+    }
+
+    // ══════════════════════════════════════════════════
+    // CALCULATE ALL
+    // ══════════════════════════════════════════════════
+    function calcAll() {
+      PAY_C.pixted = 9.76;
+      PAY_C.boleto = 0;
+      const cpA = cpm(S.salA), cpG = cpm(S.salG), cpS = cpmPL(S.salS);
+
+      const payoutResult = calcPayout(cpA, cpG, cpS);
+      const payinResult = calcPayin(cpA, cpG, cpS);
+      const transfResult = calcTransf(cpA, cpG, cpS);
+
+      // Macro KPIs consolidados
+      const totalEcoMes = payoutResult.ecoMes + payinResult.ecoMes + transfResult.ecoMes;
+      const totalHorasMes = payoutResult.horasMes + payinResult.horasMes + transfResult.horasMes;
+      const totalEcoAno = totalEcoMes * 12;
+      // Expõe para o GTM dataLayer poder enriquecer o evento lead_unlocked
+      window.totalEcoMes = totalEcoMes;
+      window.totalHorasMes = totalHorasMes;
+
+      // Atualizar preview ao vivo na tela de premissas
+      const liveBox = document.getElementById('live-preview-box');
+      if (liveBox) {
+        const formattedMoney = 'R$ ' + f(totalEcoAno, 0);
+        const formattedHours = Math.round(totalHorasMes * 12);
+        liveBox.innerHTML = `Com a Paggo você pode economizar <strong>${formattedMoney}</strong> e <strong>${formattedHours} horas</strong> por ano`;
+      }
+      // Atualizar gráficos de donut (ramp layout)
+      updateCharts(
+        payoutResult.ecoMes, payinResult.ecoMes, transfResult.ecoMes,
+        payoutResult.horasMes, payinResult.horasMes, transfResult.horasMes
+      );
+
+      if (window.USE_MODERN_LAYOUT) {
+        document.getElementById('kpis-macro').className = "macro-board";
+        document.getElementById('kpis-macro').innerHTML = `
+          <div style="display: flex; flex-direction:column; justify-content:center; padding: 24px 32px; background: rgba(157,78,42,0.05); border: 1px solid rgba(157,78,42,0.3); border-radius: var(--r);">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--orange2); letter-spacing: 1px; margin-bottom: 20px; font-weight: 700; display:flex; align-items:center; gap:8px;">
+               Impacto Consolidado (Pagamentos + Cobranças + Transferências)
+            </div>
+            <div style="display: flex; align-items: stretch; width: 100%;">
+              <div style="flex: 1; padding-right: 20px;">
+                <div style="font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 500; font-family: var(--mono); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Economia Mês Prevista</div>
+                <div style="font-size: clamp(32px, 4vw, 50px); font-weight: 600; line-height: 1; color: var(--green); letter-spacing: -2px; text-shadow: 0 4px 16px rgba(6,194,112,0.25);">R$ ${f(totalEcoMes,0)}</div>
+                <div style="font-size: 10px; color: var(--text3); margin-top: 6px;">(Já descontando todos os custos Paggo)</div>
+              </div>
+              <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
+              <div style="flex: 1; padding-left: 40px;">
+                 <div style="font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 500; font-family: var(--mono); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Tempo Recuperado</div>
+                 <div style="font-size: clamp(32px, 4vw, 50px); font-weight: 500; line-height: 1; color: var(--cream); letter-spacing: -1px; text-shadow: 0 2px 12px rgba(248,245,214,0.15);">${Math.round(totalHorasMes)}<span style="font-size: clamp(20px, 2.5vw, 28px)">h</span></div>
+                 <div style="font-size: 10px; color: var(--text3); margin-top: 6px;">(Horas produtivas salvas no mês)</div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        document.getElementById('kpis-macro').className = "kpi-grid";
+        document.getElementById('kpis-macro').innerHTML = `
+          <div class="kpi feat"><div class="kpi-label">💰 Economia total / mês <span style="display:block;font-size:8px;margin-top:2px;opacity:0.75;">(já considerando custos Paggo)</span></div><div class="kpi-val g">R$ ${f(totalEcoMes,0)}</div><div class="kpi-sub">Payout + Payin + Transferências</div></div>
+          <div class="kpi feat"><div class="kpi-label">⏱ Tempo economizado / mês</div><div class="kpi-val cr">${Math.round(totalHorasMes)}h</div><div class="kpi-sub">produtivas recuperadas</div></div>
+          <div class="kpi"><div class="kpi-label">📅 Economia anual</div><div class="kpi-val g">R$ ${f(totalEcoAno,0)}</div><div class="kpi-sub">projeção 12 meses</div></div>
+          <div class="kpi"><div class="kpi-label">📊 Produtos otimizados</div><div class="kpi-val cr">3</div><div class="kpi-sub">Payout · Payin · Transf.</div></div>`;
+      }
+
+      // Callout
+      document.getElementById('callout').innerHTML = `
+        <div class="callout-content">
+          <div class="ch">Fale com um <span>especialista Paggo</span></div>
+          <div class="cs">Descubra como podemos otimizar sua rotina e economizar até R$ ${f(totalEcoAno,0)}/ano.</div>
+        </div>
+        <a href="https://whatsapp-lead-validation.vercel.app/api/track/pgref_99a1ee4e" target="_blank" class="callout-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          Falar no WhatsApp
+        </a>`;
+    }
+
+    // ══════════════════════════════════════════════════
+    // PAYOUT CALCULATION
+    // ══════════════════════════════════════════════════
+    function calcPayout(cpA, cpG, cpS) {
+      const scKey = payoutSc();
+      const qtd   = S.qtdPayout;
+      const DIAS  = 22;
+      const tarifa = (9.76 * (S.pctPixTed / 100)) + (0 * (S.pctBoleto / 100));
+
+      let ctMes, ccMes;
+
+      if (scKey === 'c1') { // ERP
+        ctMes = [
+          6 * qtd,
+          4 * qtd,
+          3 * DIAS,
+          2.5 * qtd,
+          25 * DIAS,
+          0,
+          2.1 * qtd
+        ];
+        ccMes = [
+          cpA * 6 * qtd,
+          cpA * 4 * qtd,
+          cpG * 3 * DIAS,
+          cpA * 2.5 * qtd,
+          cpS * 25 * DIAS,
+          tarifa * qtd,
+          (cpA * 2.1 * qtd) + (0.40 * qtd)
+        ];
+      } else if (scKey === 'c2') { // Planilha
+        ctMes = [
+          6.5 * qtd,
+          6 * qtd,
+          3.5 * DIAS,
+          2.5 * qtd,
+          25 * DIAS,
+          0,
+          6.0 * qtd
+        ];
+        ccMes = [
+          cpA * 6.5 * qtd,
+          cpA * 6 * qtd,
+          cpG * 3.5 * DIAS,
+          cpA * 2.5 * qtd,
+          cpS * 25 * DIAS,
+          tarifa * qtd,
+          cpA * 6.0 * qtd
+        ];
+      } else { // c31: ERP + VAN Bancária
+        const custoVan = (qtd / (qtd + S.qtdPayin)) * 900 * (S.nContasTotal / 4);
+        ctMes = [
+          5.5 * qtd,
+          4 * qtd,
+          2 * DIAS,
+          0,
+          25 * DIAS,
+          0,
+          0.1 * qtd
+        ];
+        ccMes = [
+          cpA * 5.5 * qtd,
+          cpA * 4 * qtd,
+          cpG * 2 * DIAS,
+          custoVan,
+          cpS * 25 * DIAS,
+          tarifa * qtd,
+          (cpA * 0.1 * qtd) + (0.40 * qtd)
+        ];
+      }
+
+      // Paggo
+      const ptMes = [
+        0,
+        5 * qtd,
+        1.5 * DIAS,
+        0,
+        5.2 * DIAS,
+        0,
+        0
+      ];
+      const pcMes = [
+        3.50 * qtd,
+        cpA * 5 * qtd,
+        cpG * 1.5 * DIAS,
+        0,
+        cpS * 5.2 * DIAS,
+        0,
+        0.40 * qtd
+      ];
+
+      function condPayoutFactor(q) {
+        if (q >= 2500) return 0.65;
+        if (q >= 1500) return 0.70;
+        if (q >= 1000) return 0.80;
+        if (q >= 500) return 0.90;
+        return 1.0;
+      }
+      const vf = condPayoutFactor(qtd);
+
+      const ctMesV = ctMes.map(v => v * vf);
+      const ccMesV = ccMes.map(v => v * vf);
+
+      const totalTimoCliMes  = ctMesV.reduce((s,v) => s+v, 0);
+      const totalTimoPggMes  = ptMes.reduce((s,v) => s+v, 0);
+      const totalCustoCliMes = ccMesV.reduce((s,v) => s+v, 0);
+      const totalCustoPggMes = pcMes.reduce((s,v) => s+v, 0);
+
+      const tCT = totalTimoCliMes  / qtd;
+      const tPT = totalTimoPggMes  / qtd;
+      const tCC = totalCustoCliMes / qtd;
+      const tPC = totalCustoPggMes / qtd;
+
+      const ecoMes   = totalCustoCliMes - totalCustoPggMes;
+      const horasMes = (totalTimoCliMes  - totalTimoPggMes) / 60;
+
+      const ctDisp  = ctMesV.map(v => v / qtd);
+      const ccDisp  = ccMesV.map(v => v / qtd);
+      const pt2Disp = ptMes.map(v => v / qtd);
+      const pcDisp  = pcMes.map(v => v / qtd);
+
+      renderPayout(ccDisp, pcDisp, ctDisp, pt2Disp, tCC, tPC, tCT, tPT, cpA, cpG, cpS, tarifa, ecoMes, horasMes);
+      return { ecoMes, horasMes };
+    }
+
+    function renderPayout(cc, pc, ct, pt2, tCC, tPC, tCT, tPT, cpA, cpG, cpS, tarifa, ecoMes, horasMes) {
+      const eco = tCC - tPC;
+      const ecoT = tCT - tPT;
+      const qtd = S.qtdPayout;
+      const mDin = ecoMes;
+      const mHoras = horasMes;
+      const pctC = tCC > 0 ? eco/tCC*100 : 0;
+      const pctT = tCT > 0 ? ecoT/tCT*100 : 0;
+
+      if (window.USE_MODERN_LAYOUT) {
+        document.getElementById('kpis-payout').className = "kpi-strip";
+        document.getElementById('kpis-payout').innerHTML = `
+          <div style="flex: 1; text-align: left; display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-size:10px; color:rgba(255,255,255,0.4); font-weight:500; letter-spacing:1px; margin-bottom:6px; font-family:var(--mono); text-transform:uppercase;">Economia em ${qtd} pagamentos</div>
+            <div style="font-size:30px; font-weight:300; line-height:1; color:var(--green); letter-spacing:-0.5px;">R$ ${f(mDin,0)} <span style="font-size:14px; opacity:0.5; font-weight:400; letter-spacing:0;">/mês</span></div>
+          </div>
+          <div style="width:1px; background:rgba(255,255,255,0.06); margin:0 10px;"></div>
+          <div style="flex: 1; text-align: left; display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-size:10px; color:rgba(255,255,255,0.4); font-weight:500; letter-spacing:1px; margin-bottom:6px; font-family:var(--mono); text-transform:uppercase;">Tempo Salvo Produtivo</div>
+            <div style="font-size:30px; font-weight:300; line-height:1; color:var(--cream); letter-spacing:-0.5px;">${Math.round(mHoras)}h <span style="font-size:14px; opacity:0.5; font-weight:400; letter-spacing:0;">/mês</span></div>
+          </div>
+          <div style="display:flex; flex-direction:column; justify-content:center; gap:4px; min-width:140px;">
+            <div style="font-size:11px; color:rgba(255,255,255,0.55);">Custo reduzido em <strong style="color:var(--green); font-size:13px;">${pctC.toFixed(0)}%</strong></div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.55);">Tempo reduzido em <strong style="color:var(--cream); font-size:13px;">${pctT.toFixed(0)}%</strong></div>
+          </div>
+        `;
+      } else {
+        document.getElementById('kpis-payout').className = "kpi-grid";
+        document.getElementById('kpis-payout').innerHTML = `
+          <div class="kpi feat"><div class="kpi-label">💰 Economia total / mês <span style="display:block;font-size:8px;margin-top:2px;opacity:0.75;">(já considerando custos Paggo)</span></div><div class="kpi-val g">R$ ${f(mDin,0)}</div><div class="kpi-sub">${qtd} pagamentos</div></div>
+          <div class="kpi feat"><div class="kpi-label">⏱ Tempo salvo / mês</div><div class="kpi-val cr">${Math.round(mHoras)}h</div><div class="kpi-sub">produtivas</div></div>
+          <div class="kpi"><div class="kpi-label">📉 Redução custo</div><div class="kpi-val g">${pctC.toFixed(1)}%</div><div class="kpi-sub">vs. cenário atual</div></div>
+          <div class="kpi"><div class="kpi-label">⚡ Redução tempo</div><div class="kpi-val cr">${pctT.toFixed(1)}%</div><div class="kpi-sub">vs. cenário atual</div></div>`;
+      }
+
+      document.getElementById('eco-nf-payout').innerHTML = `
+        <div class="eco-nf-text">Estimamos que você gaste <strong>${fMin(tCT)}</strong> por pagamento atualmente.<br>Com a Paggo, você pode gastar apenas <strong>${fMin(tPT)}</strong> e <strong>R$ ${f(tPC,2)}</strong>.</div>`;
+
+      renderCmpTable('payout', PAYOUT_FASES, cc, pc, ct, pt2, PAYOUT_SUBS_CLI[payoutSc()], PAYOUT_SUBS_PGG, qtd, 'pagamento', tCT, tPT, tCC, tPC);
+
+      buildSwimlaneGeneric('payout', PAYOUT_TL_CLI[payoutSc()], PAYOUT_TL_PGG, cc, pc, ct, pt2, cpA, cpG, cpS, tarifa, qtd, PAYOUT_BASE[payoutSc()], tCT, tPT, tCC, tPC);
+
+      const aDin = mDin * 12;
+      const aHoras = Math.round(mHoras * 12);
+      document.getElementById('impact-box-payout').innerHTML = `
+        <div class="impact-box-main">
+          Com o módulo de contas a pagar Paggo, sua empresa recupera <span class="hl-orange">R$ ${f(aDin,0)}</span> e <span class="hl-cream">${aHoras} horas</span> por ano.<br>
+          Cada mês de espera custa <span class="hl-orange">R$ ${f(mDin,0)}</span>.
+        </div>`;
+    }
+
+    function calcPayin(cpA, cpG, cpS) {
+      const scKey = payinSc();
+      const qtd   = S.qtdPayin;
+      const DIAS  = 22;
+      const boletoBanco = S.tarifaBoletoBanco;
+
+      let ctMes, ccMes;
+      // Custo fixo de boleto (banco emissão + baixa) NÃO escala com vf — tarifa por transação.
+      let boletoFixedCost = 0;
+      const NOTIF_PLANILHA = 0.90; // 3 envios manuais (SMS/email) × R$ 0,30 por cobrança
+
+      if (scKey === 'c2') { // ERP
+        boletoFixedCost = boletoBanco * qtd;
+        ctMes = [
+          10.5 * DIAS,
+          1.8 * qtd,
+          1.5 * DIAS,
+          1.1 * qtd,
+          0.1 * qtd,
+          5.5 * DIAS,
+          0.5 * qtd,
+          9 * DIAS
+        ];
+        ccMes = [
+          (cpA * 10.5 * DIAS) + (10.40 * qtd),
+          cpA * 1.8 * qtd,
+          cpA * 1.5 * DIAS,
+          (cpA * 1 * qtd) + (cpG * 0.1 * qtd),
+          (0.14 * qtd) + (cpA * 0.13 * qtd),
+          cpA * 5.5 * DIAS,
+          (cpA * 0.4 * qtd) + (cpG * 0.1 * qtd),
+          (cpA * 3 * DIAS) + (cpG * 6 * DIAS)
+        ];
+      } else if (scKey === 'c3') { // ERP + VAN
+        const vanPayin = (qtd / (S.qtdPayout + qtd)) * 900 * (S.nContasTotal / 4);
+        boletoFixedCost = boletoBanco * qtd;
+        ctMes = [
+          0.5 * DIAS,
+          1 * qtd,
+          1.5 * DIAS,
+          1.1 * qtd,
+          0.1 * qtd,
+          1 * DIAS,
+          0.5 * qtd,
+          9 * DIAS
+        ];
+        ccMes = [
+          vanPayin + (10.40 * qtd) + (cpA * 0.5 * qtd),
+          cpA * 1 * qtd,
+          cpA * 1 * DIAS,
+          (cpA * 1 * qtd) + (cpG * 0.1 * qtd),
+          (0.14 * qtd) + (cpA * 0.11 * qtd),
+          cpA * 1 * DIAS,
+          (cpA * 0.4 * qtd) + (cpG * 0.1 * qtd),
+          (cpA * 3 * DIAS) + (cpG * 6 * DIAS)
+        ];
+      } else { // c1: Planilha
+        boletoFixedCost = (boletoBanco + BOLETO_BAIXA) * qtd;
+        ctMes = [
+          2 * qtd,
+          3.1 * qtd,
+          7.5 * DIAS,
+          1.3 * qtd,
+          0.1 * qtd,
+          21 * DIAS,
+          0.8 * qtd,
+          18 * DIAS
+        ];
+        ccMes = [
+          cpA * 2 * qtd,
+          (cpA * 3.1 * qtd) + (NOTIF_PLANILHA * qtd),
+          cpA * 7.5 * DIAS,
+          (cpA * 1 * qtd) + (cpG * 0.3 * qtd),
+          (0.14 * qtd) + (cpA * 0.13 * qtd),
+          cpA * 21 * DIAS,
+          (cpA * 0.6 * qtd) + (cpG * 0.2 * qtd),
+          (cpA * 3 * DIAS) + (cpG * 15 * DIAS)
+        ];
+      }
+
+      // Paggo
+      const ptMes = [
+        0,
+        0.2 * qtd,
+        0,
+        0,
+        0,
+        2 * DIAS,
+        0.7 * qtd,
+        0.9 * DIAS
+      ];
+      
+      let condBoletoPaggo = 14.90;
+      if (qtd >= 700) condBoletoPaggo = 5.90;
+      else if (qtd >= 500) condBoletoPaggo = 7.70;
+      else if (qtd >= 350) condBoletoPaggo = 9.50;
+      else if (qtd >= 200) condBoletoPaggo = 11.30;
+      else if (qtd >= 100) condBoletoPaggo = 13.10;
+
+      const pcMes = [
+        condBoletoPaggo * qtd,
+        (1.47 * qtd) + (cpA * 0.3 * qtd),
+        0,
+        0,
+        0,
+        cpA * 2 * DIAS,
+        (cpA * 0.3 * qtd) + (cpG * 0.2 * qtd),
+        cpA * 0.8 * DIAS
+      ];
+
+      function condPayinFactor(q) {
+        if (q >= 1000) return 0.85;
+        if (q >= 500)  return 0.90;
+        if (q >= 200)  return 0.95;
+        return 1.0;
+      }
+      const vf = condPayinFactor(qtd);
+
+      const ctMesV = ctMes.map(v => v * vf);
+      const ccMesV = ccMes.map(v => v * vf);
+      // Custo fixo de boleto (banco emissão + baixa) não escala com vf
+      ccMesV[0] += boletoFixedCost;
+
+      const totalTimoCliMes  = ctMesV.reduce((s,v) => s+v, 0);
+      const totalTimoPggMes  = ptMes.reduce((s,v) => s+v, 0);
+      const totalCustoCliMes = ccMesV.reduce((s,v) => s+v, 0);
+      const totalCustoPggMes = pcMes.reduce((s,v) => s+v, 0);
+
+      const tCT = totalTimoCliMes  / qtd;
+      const tPT = totalTimoPggMes  / qtd;
+      const tCC = totalCustoCliMes / qtd;
+      const tPC = totalCustoPggMes / qtd;
+
+      const ecoMes   = totalCustoCliMes - totalCustoPggMes;
+      const horasMes = (totalTimoCliMes  - totalTimoPggMes) / 60;
+
+      const ctDisp  = ctMesV.map(v => v / qtd);
+      const ccDisp  = ccMesV.map(v => v / qtd);
+      const pt2Disp = ptMes.map(v => v / qtd);
+      const pcDisp  = pcMes.map(v => v / qtd);
+
+      renderPayin(ccDisp, pcDisp, ctDisp, pt2Disp, tCC, tPC, tCT, tPT, cpA, cpG, cpS, ecoMes, horasMes);
+      return { ecoMes, horasMes, eco: tCC - tPC, ecoT: tCT - tPT, tCC, tPC, tCT, tPT };
+    }
+
+    function renderPayin(cc, pc, ct, pt2, tCC, tPC, tCT, tPT, cpA, cpG, cpS, ecoMes, horasMes) {
+      const eco = tCC - tPC;
+      const ecoT = tCT - tPT;
+      const qtd = S.qtdPayin;
+      const mDin = ecoMes;
+      const mHoras = horasMes;
+      const pctC = tCC > 0 ? eco/tCC*100 : 0;
+      const pctT = tCT > 0 ? ecoT/tCT*100 : 0;
+
+      if (window.USE_MODERN_LAYOUT) {
+        document.getElementById('kpis-payin').className = "kpi-strip";
+        document.getElementById('kpis-payin').innerHTML = `
+          <div style="flex: 1; text-align: left; display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-size:10px; color:rgba(255,255,255,0.4); font-weight:500; letter-spacing:1px; margin-bottom:6px; font-family:var(--mono); text-transform:uppercase;">Economia em ${qtd} cobranças</div>
+            <div style="font-size:30px; font-weight:300; line-height:1; color:var(--green); letter-spacing:-0.5px;">R$ ${f(mDin,0)} <span style="font-size:14px; opacity:0.5; font-weight:400; letter-spacing:0;">/mês</span></div>
+          </div>
+          <div style="width:1px; background:rgba(255,255,255,0.06); margin:0 10px;"></div>
+          <div style="flex: 1; text-align: left; display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-size:10px; color:rgba(255,255,255,0.4); font-weight:500; letter-spacing:1px; margin-bottom:6px; font-family:var(--mono); text-transform:uppercase;">Tempo Salvo Produtivo</div>
+            <div style="font-size:30px; font-weight:300; line-height:1; color:var(--cream); letter-spacing:-0.5px;">${Math.round(mHoras)}h <span style="font-size:14px; opacity:0.5; font-weight:400; letter-spacing:0;">/mês</span></div>
+          </div>
+          <div style="display:flex; flex-direction:column; justify-content:center; gap:4px; min-width:140px;">
+            <div style="font-size:11px; color:rgba(255,255,255,0.55);">Custo reduzido em <strong style="color:var(--green); font-size:13px;">${pctC.toFixed(0)}%</strong></div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.55);">Tempo reduzido em <strong style="color:var(--cream); font-size:13px;">${pctT.toFixed(0)}%</strong></div>
+          </div>
+        `;
+      } else {
+        document.getElementById('kpis-payin').className = "kpi-grid";
+        document.getElementById('kpis-payin').innerHTML = `
+          <div class="kpi feat"><div class="kpi-label">💰 Economia total / mês <span style="display:block;font-size:8px;margin-top:2px;opacity:0.75;">(já considerando custos Paggo)</span></div><div class="kpi-val g">R$ ${f(mDin,0)}</div><div class="kpi-sub">${qtd} cobranças</div></div>
+          <div class="kpi feat"><div class="kpi-label">⏱ Tempo salvo / mês</div><div class="kpi-val cr">${Math.round(mHoras)}h</div><div class="kpi-sub">produtivas</div></div>
+          <div class="kpi"><div class="kpi-label">📉 Redução custo</div><div class="kpi-val g">${pctC.toFixed(1)}%</div><div class="kpi-sub">vs. cenário atual</div></div>
+          <div class="kpi"><div class="kpi-label">⚡ Redução tempo</div><div class="kpi-val cr">${pctT.toFixed(1)}%</div><div class="kpi-sub">vs. cenário atual</div></div>`;
+      }
+
+      document.getElementById('eco-nf-payin').innerHTML = `
+        <div class="eco-nf-text">Estimamos que você gaste <strong>${fMin(tCT)}</strong> e <strong>R$ ${f(tCC,2)}</strong> por cobrança atualmente.<br>Com a Paggo, você pode gastar apenas <strong>${fMin(tPT)}</strong> e <strong>R$ ${f(tPC,2)}</strong>.</div>`;
+
+      renderCmpTable('payin', PAYIN_FASES, cc, pc, ct, pt2, PAYIN_SUBS_CLI[payinSc()], PAYIN_SUBS_PGG, qtd, 'pagamento', tCT, tPT, tCC, tPC);
+
+      const scKey = payinSc();
+      const stepsC = PAYIN_SUBS_CLI[scKey].map((subs, i) => {
+        const mainLabel = PAYIN_FASES[i];
+        const isAuto = ct[i] < 0.001 && cc[i] < 0.001;
+        return { label: mainLabel, tMin: ct[i], custo: cc[i], cargo: isAuto ? 'AUTO' : (i===6 ? 'G' : 'A'), tip: '' };
+      });
+      const stepsP = PAYIN_SUBS_PGG.map((subs, i) => {
+        const mainLabel = PAYIN_FASES[i];
+        const isAuto = pt2[i] < 0.001 && pc[i] < 0.005;
+        return { label: mainLabel, tMin: pt2[i], custo: pc[i], cargo: isAuto ? 'AUTO' : (i===7 ? 'G' : 'A'), tip: '' };
+      });
+      buildSwimlaneFromSteps('payin', stepsC, stepsP, qtd, tCT, tPT, tCC, tPC);
+
+      const aDin = mDin * 12;
+      const aHoras = Math.round(mHoras * 12);
+      document.getElementById('impact-box-payin').innerHTML = `
+        <div class="impact-box-main">
+          Com o módulo de contas a receber Paggo, sua empresa recupera <span class="hl-orange">R$ ${f(aDin,0)}</span> e <span class="hl-cream">${aHoras} horas</span> por ano.<br>
+          Cada mês de espera custa <span class="hl-orange">R$ ${f(mDin,0)}</span>.
+        </div>`;
+    }
+
+    // ══════════════════════════════════════════════════
+    // TRANSFERÊNCIAS CALCULATION
+    // ══════════════════════════════════════════════════
+    function calcTransf(cpA, cpG, cpS) {
+      const scKey = transfSc();
+      const nContas = S.nContasTotal;
+      const N = 8.5; // multiplicador mensal fixo
+
+      let ctMes, ccMes;
+
+      if (scKey === 'c2') { // ERP
+        ctMes = [
+          1.15 * N * nContas,
+          1.5  * N * nContas,
+          2.4  * N * nContas,
+          4.0  * N * nContas,
+          0.7  * N * nContas,
+        ];
+        ccMes = [
+          cpA * 1.15 * N * nContas,
+          cpA * 1.5  * N * nContas,
+          (cpA * 0.9 * N * nContas) + (cpG * 1.5 * N * nContas),
+          cpA * 4.0  * N * nContas,
+          cpA * 0.7  * N * nContas,
+        ];
+      } else { // c1: Planilha
+        ctMes = [
+          2.5  * N * nContas,
+          4.0  * N * nContas,
+          3.1  * N * nContas,
+          0.75 * N * nContas,
+          3.8  * N * nContas,
+        ];
+        ccMes = [
+          cpA * 2.5  * N * nContas,
+          cpA * 4.0  * N * nContas,
+          (cpA * 1.6 * N * nContas) + (cpG * 1.5 * N * nContas),
+          cpA * 0.45 * N * nContas,
+          cpA * 3.8  * N * nContas,
+        ];
+      }
+
+      // Paggo
+      const ptMes = [
+        1.0  * N,
+        0,
+        1.05 * N * nContas,
+        0,
+        0,
+      ];
+      const pcMes = [
+        cpA * 1.0 * N,
+        0,
+        (cpA * 0.8 * N * nContas) + (cpG * 0.25 * N * nContas),
+        0,
+        0,
+      ];
+
+      const totalTimoCliMes  = ctMes.reduce((s,v) => s+v, 0);
+      const totalTimoPggMes  = ptMes.reduce((s,v) => s+v, 0);
+      const totalCustoCliMes = ccMes.reduce((s,v) => s+v, 0);
+      const totalCustoPggMes = pcMes.reduce((s,v) => s+v, 0);
+
+      const tCT = totalTimoCliMes  / N;
+      const tPT = totalTimoPggMes  / N;
+      const tCC = totalCustoCliMes / N;
+      const tPC = totalCustoPggMes / N;
+
+      const ecoMes   = totalCustoCliMes - totalCustoPggMes;
+      const horasMes = (totalTimoCliMes  - totalTimoPggMes) / 60;
+
+      const ctDisp  = ctMes.map(v => v / N);
+      const ccDisp  = ccMes.map(v => v / N);
+      const pt2Disp = ptMes.map(v => v / N);
+      const pcDisp  = pcMes.map(v => v / N);
+
+      renderTransf(ccDisp, pcDisp, ctDisp, pt2Disp, tCC, tPC, tCT, tPT, cpA, nContas, N, 0);
+      return { ecoMes, horasMes };
+    }
+
+    function renderTransf(cc, pc, ct, pt2, tCC, tPC, tCT, tPT, cpA, nContas, nCiclos, nTransf) {
+      const eco = tCC - tPC;
+      const ecoT = tCT - tPT;
+      const mDin = eco * nCiclos;
+      const mHoras = ecoT * nCiclos / 60;
+      const pctC = tCC > 0 ? eco/tCC*100 : 0;
+      const pctT = tCT > 0 ? ecoT/tCT*100 : 0;
+
+      if (window.USE_MODERN_LAYOUT) {
+        document.getElementById('kpis-transf').className = "kpi-strip";
+        document.getElementById('kpis-transf').innerHTML = `
+          <div style="flex: 1; text-align: left; display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-size:10px; color:rgba(255,255,255,0.4); font-weight:500; letter-spacing:1px; margin-bottom:6px; font-family:var(--mono); text-transform:uppercase;">Economia em ${nContas} contas</div>
+            <div style="font-size:30px; font-weight:300; line-height:1; color:var(--green); letter-spacing:-0.5px;">R$ ${f(mDin,0)} <span style="font-size:14px; opacity:0.5; font-weight:400; letter-spacing:0;">/mês</span></div>
+          </div>
+          <div style="width:1px; background:rgba(255,255,255,0.06); margin:0 10px;"></div>
+          <div style="flex: 1; text-align: left; display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-size:10px; color:rgba(255,255,255,0.4); font-weight:500; letter-spacing:1px; margin-bottom:6px; font-family:var(--mono); text-transform:uppercase;">Tempo Salvo Produtivo</div>
+            <div style="font-size:30px; font-weight:300; line-height:1; color:var(--cream); letter-spacing:-0.5px;">${Math.round(mHoras)}h <span style="font-size:14px; opacity:0.5; font-weight:400; letter-spacing:0;">/mês</span></div>
+          </div>
+          <div style="display:flex; flex-direction:column; justify-content:center; gap:4px; min-width:140px;">
+            <div style="font-size:11px; color:rgba(255,255,255,0.55);">Custo reduzido em <strong style="color:var(--green); font-size:13px;">${pctC.toFixed(0)}%</strong></div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.55);">Tempo reduzido em <strong style="color:var(--cream); font-size:13px;">${pctT.toFixed(0)}%</strong></div>
+          </div>
+        `;
+      } else {
+        document.getElementById('kpis-transf').className = "kpi-grid";
+        document.getElementById('kpis-transf').innerHTML = `
+          <div class="kpi feat"><div class="kpi-label">💰 Economia total / mês <span style="display:block;font-size:8px;margin-top:2px;opacity:0.75;">(já considerando custos Paggo)</span></div><div class="kpi-val g">R$ ${f(mDin,0)}</div><div class="kpi-sub">${nContas} contas · ${nCiclos} ciclos</div></div>
+          <div class="kpi feat"><div class="kpi-label">⏱ Tempo salvo / mês</div><div class="kpi-val cr">${Math.round(mHoras)}h</div><div class="kpi-sub">produtivas</div></div>
+          <div class="kpi"><div class="kpi-label">📉 Redução custo</div><div class="kpi-val g">${pctC.toFixed(1)}%</div><div class="kpi-sub">por ciclo</div></div>
+          <div class="kpi"><div class="kpi-label">⚡ Redução tempo</div><div class="kpi-val cr">${pctT.toFixed(1)}%</div><div class="kpi-sub">por ciclo</div></div>`;
+      }
+
+      document.getElementById('eco-nf-transf').innerHTML = `
+        <div class="eco-nf-text">Cada ciclo de transferência custa <strong>${fMin(tCT)}</strong> e <strong>R$ ${f(tCC,2)}</strong> atualmente.<br>Com a Paggo, você pode gastar apenas <strong>${fMin(tPT)}</strong> e <strong>R$ ${f(tPC,2)}</strong>.</div>`;
+
+      // Table
+      const scKey = transfSc();
+      renderCmpTable('transf', TRANSF_FASES, cc, pc, ct, pt2, TRANSF_SUBS_CLI[scKey], TRANSF_SUBS_PGG, nCiclos, 'ciclo', tCT, tPT, tCC, tPC);
+
+      // Swimlane
+      const stepsC = TRANSF_FASES.map((fase, i) => {
+        const isAuto = ct[i] < 0.001;
+        return { label: fase, tMin: ct[i], custo: cc[i], cargo: isAuto ? 'AUTO' : 'A', tip: '' };
+      });
+      const stepsP = TRANSF_FASES.map((fase, i) => {
+        const isAuto = pt2[i] < 0.001;
+        return { label: fase, tMin: pt2[i], custo: pc[i], cargo: isAuto ? 'AUTO' : 'A', tip: '' };
+      });
+      buildSwimlaneFromSteps('transf', stepsC, stepsP, nCiclos, tCT, tPT, tCC, tPC);
+
+      // Impact box
+      const aDin = mDin * 12;
+      const aHoras = Math.round(mHoras * 12);
+      document.getElementById('impact-box-transf').innerHTML = `
+        <div class="impact-box-main">
+          Com o módulo financeiro Paggo, sua empresa recupera <span class="hl-orange">R$ ${f(aDin,0)}</span> e <span class="hl-cream">${aHoras} horas</span> por ano.<br>
+          Cada mês de espera custa <span class="hl-orange">R$ ${f(mDin,0)}</span>.
+        </div>`;
+    }
+
+    // ══════════════════════════════════════════════════
+    // GENERIC COMPARISON TABLE RENDERER
+    // ══════════════════════════════════════════════════
+    function renderCmpTable(product, fases, cc, pc, ct, pt2, subsC, subsP, qtd, unit='pagamento', tCT_total, tPT_total, tCC_total, tPC_total) {
+      const tbody = document.getElementById('cmp-tbody-'+product);
+      const ROLES = { A:'Analista', G:'Gestor', S:'Sócio', AUTO:'', TARIFA:'Banco' };
+      const unitLabel = unit === 'ciclo' ? 'ciclo' : (product === 'payin' ? 'cobrança' : 'pagamento');
+
+      function mkSubItems(subs, isPayin) {
+        return subs.map(s => {
+          let timeStr = '';
+          if (s.cargo === 'AUTO') {
+            timeStr = '<span class="acc-badge auto">Automático</span>';
+          } else if (s.cargo === 'TARIFA') {
+            timeStr = '<span class="acc-badge tarifa">Tarifa bancária</span>';
+          } else if (s.tDay !== undefined) {
+            timeStr = `<span class="acc-time">${f(s.tDay,1)} min/dia</span>`;
+          } else if (s.pct) {
+            timeStr = `<span class="acc-time">${f(s.tMin,1)} min × ${S.pctInadimplencia}%</span>`;
+          } else if (s.pct2) {
+            timeStr = `<span class="acc-time">${f(s.tMin,1)} min × ${S.pctEscalacao}%</span>`;
+          } else if (s.perConta || s.perContaPct || s.perContaPctX2 || s.perTransf || s.fixo) {
+            timeStr = `<span class="acc-time">${f(s.tMin,1)} min</span>`;
+          } else {
+            timeStr = `<span class="acc-time">${fMin(s.tMin)}/${unitLabel}</span>`;
+          }
+          const role = ROLES[s.cargo] || '';
+          const roleHtml = role ? `<span class="acc-role">${role}</span>` : '';
+          return `<div class="acc-item"><span class="acc-label">${s.label}</span>${roleHtml}${timeStr}</div>`;
+        }).join('');
+      }
+
+      // Use pre-computed scaled totals (from calc engine) instead of raw phase sums
+      const totCT = tCT_total !== undefined ? tCT_total : ct.reduce((a,b)=>a+b,0);
+      const totPT = tPT_total !== undefined ? tPT_total : pt2.reduce((a,b)=>a+b,0);
+      const totCC = tCC_total !== undefined ? tCC_total : cc.reduce((a,b)=>a+b,0);
+      const totPC = tPC_total !== undefined ? tPC_total : pc.reduce((a,b)=>a+b,0);
+
+      let tBodyHtml = '<tr class="acc-hint-row"><td colspan="5" style="padding:5px 14px 7px; font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:0.6px; text-align:left; border-bottom:1px solid var(--border);">▸ Clique em uma etapa para ver as atividades detalhadas</td></tr>';
+      fases.forEach((fase, i) => {
+        const accId = `acc-${product}-${i}`;
+        tBodyHtml += `
+        <tr class="cmp-row" onclick="toggleAccordionGeneric('${accId}')" title="Clique para ver as atividades desta etapa">
+          <td><span class="acc-chevron" id="${accId}-chev">&#9658;</span>${fase}<span style="font-size:8px; color:rgba(255,255,255,0.25); margin-left:6px; font-weight:400;">ver atividades</span></td>
+          <td class="col-cli-t">${fMin(ct[i])}</td>
+          <td class="col-cli-c">R$ ${f(cc[i],2)}</td>
+          <td class="col-pgg-t">${fMin(pt2[i])}</td>
+          <td class="col-pgg-c">R$ ${f(pc[i],2)}</td>
+        </tr>
+        <tr class="acc-row" id="${accId}-row">
+          <td colspan="5" class="acc-col-wrap">
+            <div class="acc-grid">
+              <div class="acc-col">
+                <div class="acc-col-title">Cenário Atual</div>
+                ${mkSubItems(subsC[i])}
+              </div>
+              <div class="acc-col acc-col-pgg">
+                <div class="acc-col-title">Paggo</div>
+                ${mkSubItems(subsP[i])}
+              </div>
+            </div>
+          </td>
+        </tr>`;
+      });
+      tBodyHtml += `<tr class="cmp-total">
+        <td>Total por ${unitLabel}</td>
+        <td class="col-cli-t">${fMin(totCT)}</td>
+        <td class="col-cli-c">R$ ${f(totCC,2)}</td>
+        <td class="col-pgg-t">${fMin(totPT)}</td>
+        <td class="col-pgg-c">R$ ${f(totPC,2)}</td>
+      </tr>`;
+      tbody.innerHTML = tBodyHtml;
+      // Pre-open first accordion to signal the interaction to the user
+      toggleAccordionGeneric(`acc-${product}-0`);
+    }
+
+    function toggleAccordionGeneric(id) {
+      const row = document.getElementById(id + '-row');
+      const chev = document.getElementById(id + '-chev');
+      if (!row || !chev) return;
+      const isOpen = row.classList.contains('open');
+      row.classList.toggle('open', !isOpen);
+      chev.classList.toggle('open', !isOpen);
+    }
+
+    // ══════════════════════════════════════════════════
+    // PAYOUT SWIMLANE (full detail from index.html)
+    // ══════════════════════════════════════════════════
+    function buildSwimlaneGeneric(product, stepsCliRaw, stepsPggRaw, cc, pc, ct, pt2, cpA, cpG, cpS, tarifa, qtd, sc, tCT_tot, tPT_tot, tCC_tot, tPC_tot) {
+      const wrap = document.getElementById('swimlane-wrap-'+product);
+      if (!wrap) return;
+
+      const cliData = stepsCliRaw.map((step, i) => {
+        return { ...step, tMin: ct[i] || 0, custo: cc[i] || 0 };
+      });
+
+      const pggData = stepsPggRaw.map((step, i) => {
+        return { ...step, tMin: pt2[i] || 0, custo: pc[i] || 0 };
+      });
+
+      const totalCli = tCT_tot !== undefined ? tCT_tot : cliData.reduce((s,d) => s + d.tMin, 0);
+      const totalPgg = tPT_tot !== undefined ? tPT_tot : pggData.reduce((s,d) => s + d.tMin, 0);
+      const totalCostCli = tCC_tot !== undefined ? tCC_tot : cliData.reduce((s,d) => s + d.custo, 0);
+      const totalCostPgg = tPC_tot !== undefined ? tPC_tot : pggData.reduce((s,d) => s + d.custo, 0);
+
+      function mkTip(step, tMin, custoX) {
+        if (step.cargo === 'AUTO') return `<div class="tip-auto">✦ Automático — sem tempo de mão de obra</div>`;
+        if (step.cargo === 'TARIFA') {
+          const pixtedC = S.pctPixTed/100*PAY_C.pixted, tot = pixtedC;
+          return `<table class="tip-table"><tr><th>Método</th><th>Mix</th><th>Tarifa</th><th>Custo/pag</th></tr>
+            <tr><td class="tip-role">PIX / TED</td><td>${S.pctPixTed}%</td><td>R$ ${f(PAY_C.pixted,2)}</td><td>R$ ${f(pixtedC,2)}</td></tr>
+            <tr><td class="tip-role">Boleto</td><td>${S.pctBoleto}%</td><td>R$ 0,00</td><td>R$ 0,00</td></tr>
+            <tr><td><strong>Total</strong></td><td></td><td></td><td><strong>R$ ${f(tot,2)}</strong></td></tr></table>`;
+        }
+        const roleNames = { A:'Analista', G:'Gestor', S:'Sócio' };
+        const custoMes = custoX * qtd;
+        return `<table class="tip-table"><tr><th>Cargo</th><th>Tempo/pag</th><th>Custo/pag</th></tr>
+          <tr><td class="tip-role">${roleNames[step.cargo]}</td><td>${f(tMin,2)} min</td><td>R$ ${f(custoX,2)}</td></tr>
+          <tr><td style="color:rgba(255,255,255,0.35);font-size:10px;">Total/mês (${qtd} pag)</td><td style="color:rgba(255,255,255,0.5);font-size:10px;">${fMin(tMin*qtd)}</td><td style="color:rgba(255,255,255,0.5);font-size:10px;">R$ ${f(custoMes,0)}</td></tr></table>`;
+      }
+
+      cliData.forEach(s => { s.tip = mkTip(s, s.tMin, s.custo); });
+      pggData.forEach(s => { s.tip = mkTip(s, s.tMin, s.custo); });
+
+      function renderTrack(steps, type) {
+        const isPgg = type === 'pgg';
+        let html = `<div class="sw-track"><div class="sw-line ${type}"></div>`;
+        steps.forEach((step, i) => {
+          const isUp = i % 2 === 0;
+          const isAuto = step.cargo === 'AUTO' || step.tMin === 0;
+          const dotClass = isAuto ? 'auto' : type;
+          const cardClass = isAuto ? 'auto-card' : type;
+          const timeClass = isAuto ? 'auto' : type;
+          const tStr = step.tMin < 0.05 ? 'Automático' : fMin(step.tMin * qtd);
+          const cStr = step.custo < 0.005 ? 'R$ 0,00' : `R$ ${f(step.custo * qtd, 0)}`;
+          const costLine = isPgg ? '' : `<div class="sw-card-cost">${cStr}</div>`;
+          const card = `<div class="sw-card ${cardClass}"><div class="sw-tip">${step.tip || ''}</div><div class="sw-card-title">${step.label}</div><div class="sw-card-time ${timeClass}">${tStr}</div>${costLine}</div>`;
+          const connector = `<div class="sw-connector ${isAuto ? 'pgg' : type}"></div>`;
+          html += isUp ? `<div class="sw-step up">${card}${connector}<div class="sw-dot ${dotClass}">${i+1}</div></div>`
+                       : `<div class="sw-step down"><div class="sw-dot ${dotClass}">${i+1}</div>${connector}${card}</div>`;
+        });
+        html += `</div>`;
+        return html;
+      }
+
+      wrap.innerHTML = `
+        <div class="swimlane-section cli">
+          <div class="swimlane-header"><div class="swimlane-badge cli">Processo atual</div>
+            <div class="swimlane-total"><span class="cli-t">${fMin(totalCli * qtd)}</span> · <span style="color:var(--text3)">R$ ${f(totalCostCli * qtd,0)} / mês</span></div>
+          </div>
+          ${renderTrack(cliData, 'cli')}
+        </div>
+        <div class="swimlane-section pgg">
+          <div class="swimlane-header"><div class="swimlane-badge pgg">Com Paggo</div>
+            <div class="swimlane-total"><span class="pgg-t">${fMin(totalPgg * qtd)}</span> · <span style="color:var(--text3)">R$ ${f(totalCostPgg * qtd,0)} / mês</span></div>
+          </div>
+          ${renderTrack(pggData, 'pgg')}
+        </div>`;
+    }
+
+    // ══════════════════════════════════════════════════
+    // GENERIC SWIMLANE FROM STEPS (PAYIN & TRANSF)
+    // ══════════════════════════════════════════════════
+    function buildSwimlaneFromSteps(product, stepsC, stepsP, qtd, tCT_tot, tPT_tot, tCC_tot, tPC_tot) {
+      const wrap = document.getElementById('swimlane-wrap-'+product);
+      if (!wrap) return;
+
+      const totalCli = tCT_tot !== undefined ? tCT_tot : stepsC.reduce((s,d) => s + d.tMin, 0);
+      const totalPgg = tPT_tot !== undefined ? tPT_tot : stepsP.reduce((s,d) => s + d.tMin, 0);
+      const totalCostCli = tCC_tot !== undefined ? tCC_tot : stepsC.reduce((s,d) => s + d.custo, 0);
+      const totalCostPgg = tPC_tot !== undefined ? tPC_tot : stepsP.reduce((s,d) => s + d.custo, 0);
+
+      function mkTip(step, tMin, custoX) {
+        if (step.cargo === 'AUTO') return `<div class="tip-auto">✦ Automático — sem tempo de mão de obra</div>`;
+        const roleNames = { A:'Analista', G:'Gestor', S:'Sócio' };
+        const custoMes = custoX * qtd;
+        const unitL = product === 'transf' ? 'ciclo' : 'cobrança';
+        const unitP = product === 'transf' ? 'ciclos' : 'cob';
+        return `<table class="tip-table"><tr><th>Cargo</th><th>Tempo/${unitL}</th><th>Custo/${unitL}</th></tr>
+          <tr><td class="tip-role">${roleNames[step.cargo] || 'Analista'}</td><td>${f(tMin,2)} min</td><td>R$ ${f(custoX,2)}</td></tr>
+          <tr><td style="color:rgba(255,255,255,0.35);font-size:10px;">Total/mês (${qtd} ${unitP})</td><td style="color:rgba(255,255,255,0.5);font-size:10px;">${fMin(tMin*qtd)}</td><td style="color:rgba(255,255,255,0.5);font-size:10px;">R$ ${f(custoMes,0)}</td></tr></table>`;
+      }
+
+      stepsC.forEach(s => { s.tip = mkTip(s, s.tMin, s.custo); });
+      stepsP.forEach(s => { s.tip = mkTip(s, s.tMin, s.custo); });
+
+      function renderTrack(steps, type) {
+        const isPgg = type === 'pgg';
+        let html = `<div class="sw-track"><div class="sw-line ${type}"></div>`;
+        steps.forEach((step, i) => {
+          const isUp = i % 2 === 0;
+          const isAuto = step.cargo === 'AUTO' || (step.tMin < 0.001 && step.custo < 0.005);
+          const dotClass = isAuto ? 'auto' : type;
+          const cardClass = isAuto ? 'auto-card' : type;
+          const timeClass = isAuto ? 'auto' : type;
+          const tStr = isAuto ? 'Automático' : fMin(step.tMin * qtd);
+          const cStr = step.custo < 0.005 ? 'R$ 0,00' : `R$ ${f(step.custo * qtd, 0)}`;
+          const costLine = isPgg ? '' : `<div class="sw-card-cost">${cStr}</div>`;
+          const card = `<div class="sw-card ${cardClass}"><div class="sw-tip">${step.tip || ''}</div><div class="sw-card-title">${step.label}</div><div class="sw-card-time ${timeClass}">${tStr}</div>${costLine}</div>`;
+          const connector = `<div class="sw-connector ${isAuto ? 'pgg' : type}"></div>`;
+          html += isUp ? `<div class="sw-step up">${card}${connector}<div class="sw-dot ${dotClass}">${i+1}</div></div>`
+                       : `<div class="sw-step down"><div class="sw-dot ${dotClass}">${i+1}</div>${connector}${card}</div>`;
+        });
+        html += `</div>`;
+        return html;
+      }
+
+      const unitLabel = product === 'transf' ? 'ciclos' : 'cobranças';
+      wrap.innerHTML = `
+        <div class="swimlane-section cli">
+          <div class="swimlane-header"><div class="swimlane-badge cli">Processo atual</div>
+            <div class="swimlane-total"><span class="cli-t">${fMin(totalCli * qtd)}</span> · <span style="color:var(--text3)">R$ ${f(totalCostCli * qtd,0)} / mês</span></div>
+          </div>
+          ${renderTrack(stepsC, 'cli')}
+        </div>
+        <div class="swimlane-section pgg">
+          <div class="swimlane-header"><div class="swimlane-badge pgg">Com Paggo</div>
+            <div class="swimlane-total"><span class="pgg-t">${fMin(totalPgg * qtd)}</span> · <span style="color:var(--text3)">R$ ${f(totalCostPgg * qtd,0)} / mês</span></div>
+          </div>
+          ${renderTrack(stepsP, 'pgg')}
+        </div>`;
+    }
+
+    // ══════════════════════════════════════════════════
+    // UTILS
+    // ══════════════════════════════════════════════════
+    function f(v, d=2) { return v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+    function fMin(m) {
+      if (m >= 60) { const h=Math.floor(m/60), mm=Math.round(m%60); return mm>0?`${h}h ${mm}min`:`${h}h`; }
+      return `${m.toFixed(1)} min`;
+    }
+
+    // ══════════════════════════════════════════════════
+    // DONUT CHARTS
+    // ══════════════════════════════════════════════════
+    function drawDonutSegments(ids, values) {
+      const C = 2 * Math.PI * 54; // ≈ 339.29
+      const total = values.reduce((s, v) => s + Math.max(0, v), 0);
+      let cumOffset = 0;
+      ids.forEach(function(id, i) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const val = Math.max(0, values[i]);
+        const dash = total > 0 ? (val / total) * C : 0;
+        el.setAttribute('stroke-dasharray', dash.toFixed(2) + ' ' + C.toFixed(2));
+        el.setAttribute('stroke-dashoffset', (-cumOffset).toFixed(2));
+        cumOffset += dash;
+      });
+    }
+
+    // ── COUNTER ROLL ANIMATION ──
+    var _animRaf = {};
+    var _showAnual = false;
+    var _lastChartArgs = null;
+    function rollTo(elId, toVal, formatFn, duration) {
+      var el = document.getElementById(elId);
+      if (!el) return;
+      if (_animRaf[elId]) { cancelAnimationFrame(_animRaf[elId]); }
+      var fromVal = parseFloat(el.dataset.rv) || 0;
+      el.dataset.rv = toVal;
+      var t0 = null;
+      function tick(ts) {
+        if (!t0) t0 = ts;
+        var p = Math.min((ts - t0) / duration, 1);
+        var e = 1 - Math.pow(1 - p, 4); // ease-out quart — snappy roll
+        el.innerHTML = formatFn(fromVal + (toVal - fromVal) * e);
+        if (p < 1) { _animRaf[elId] = requestAnimationFrame(tick); }
+        else { el.innerHTML = formatFn(toVal); delete _animRaf[elId]; }
+      }
+      _animRaf[elId] = requestAnimationFrame(tick);
+    }
+
+    function setPeriod(anual) {
+      _showAnual = anual;
+      var mes = document.getElementById('period-opt-mes');
+      var ano = document.getElementById('period-opt-ano');
+      if (mes) { mes.style.background = anual ? 'transparent' : 'var(--orange)'; mes.style.color = anual ? 'rgba(255,255,255,0.4)' : '#fff'; mes.style.fontWeight = anual ? '500' : '600'; }
+      if (ano) { ano.style.background = anual ? 'var(--orange)' : 'transparent'; ano.style.color = anual ? '#fff' : 'rgba(255,255,255,0.4)'; ano.style.fontWeight = anual ? '600' : '500'; }
+      if (_lastChartArgs) updateCharts.apply(null, _lastChartArgs);
+    }
+
+    function updateCharts(ecoM, ecoP, ecoT, hrM, hrP, hrT) {
+      _lastChartArgs = [ecoM, ecoP, ecoT, hrM, hrP, hrT];
+      var mult = _showAnual ? 12 : 1;
+      var periodoLabel = _showAnual ? 'ano' : 'mês';
+      var titleSuffix  = _showAnual ? '/ ANO' : '/ MÊS';
+
+      var t1 = document.getElementById('donut-title-money');
+      var t2 = document.getElementById('donut-title-hours');
+      if (t1) t1.textContent = 'Economia financeira estimada ' + titleSuffix;
+      if (t2) t2.textContent = 'Tempo economizado estimado ' + titleSuffix;
+
+      const totalEco = ecoM + ecoP + ecoT;
+      const totalHrs = hrM + hrP + hrT;
+
+      // Donut 1: total
+      const moneyTotalEl = document.getElementById('donut-money-total');
+      if (moneyTotalEl) {
+        if (totalEco > 0) {
+          if (!document.getElementById('_dm_num')) {
+            moneyTotalEl.innerHTML =
+              '<span style="font-size:0.65em;font-weight:400;color:var(--text2);">R$\u00a0</span>' +
+              '<span id="_dm_num"></span>' +
+              '<span id="_dm_per" style="font-size:0.55em;font-weight:400;color:var(--text2);">\u00a0/' + periodoLabel + '</span>';
+          } else {
+            var perEl = document.getElementById('_dm_per');
+            if (perEl) perEl.textContent = '\u00a0/' + periodoLabel;
+          }
+          rollTo('_dm_num', totalEco * mult, function(v){ return f(v, 0); }, 550);
+        } else {
+          moneyTotalEl.innerHTML = 'Selecione um cenário';
+          var n = document.getElementById('_dm_num');
+          if (n) n.dataset.rv = '0';
+        }
+      }
+
+      drawDonutSegments(['donut-m-1','donut-m-2','donut-m-3'], [ecoM, ecoP, ecoT]);
+
+      // Donut 1: legend
+      [['donut-m-leg-1', ecoM], ['donut-m-leg-2', ecoP], ['donut-m-leg-3', ecoT]].forEach(function(p) {
+        var el = document.getElementById(p[0]);
+        if (!el) return;
+        if (p[1] >= 0) {
+          rollTo(p[0], p[1] * mult, function(v){ return 'R$\u00a0' + f(v, 0); }, 550);
+        } else { el.textContent = '—'; el.dataset.rv = '0'; }
+      });
+
+      // Donut 2: total
+      const hrsTotalEl = document.getElementById('donut-hours-total');
+      if (hrsTotalEl) {
+        if (totalHrs > 0) {
+          if (!document.getElementById('_dh_num')) {
+            hrsTotalEl.innerHTML =
+              '<span id="_dh_num"></span>' +
+              '<span id="_dh_per" style="font-size:0.55em;font-weight:400;color:var(--text2);">\u00a0horas/' + periodoLabel + '</span>';
+          } else {
+            var hperEl = document.getElementById('_dh_per');
+            if (hperEl) hperEl.textContent = '\u00a0horas/' + periodoLabel;
+          }
+          rollTo('_dh_num', totalHrs * mult, function(v){ return Math.round(v).toString(); }, 550);
+        } else {
+          hrsTotalEl.innerHTML = 'Selecione um cenário';
+          var nh = document.getElementById('_dh_num');
+          if (nh) nh.dataset.rv = '0';
+        }
+      }
+
+      drawDonutSegments(['donut-h-1','donut-h-2','donut-h-3'], [hrM, hrP, hrT]);
+
+      // Donut 2: legend
+      [['donut-h-leg-1', hrM], ['donut-h-leg-2', hrP], ['donut-h-leg-3', hrT]].forEach(function(p) {
+        var el = document.getElementById(p[0]);
+        if (!el) return;
+        if (p[1] >= 0) {
+          rollTo(p[0], p[1] * mult, function(v){ return Math.round(v) + 'h'; }, 550);
+        } else { el.textContent = '—'; el.dataset.rv = '0'; }
+      });
+    }
+
+    var DTIPS = {
+      m: [
+        { title: 'Contas a Pagar', items: ['Aprovações e autorizações eliminadas com fluxo automático', 'Digitação manual de dados bancários eliminada por pagamento', 'Comprovantes e conciliação gerados automaticamente'] },
+        { title: 'Contas a Receber', items: ['Régua de cobrança aplicada automaticamente, reduzindo inadimplência', 'Baixa e conciliação automáticas no recebimento', 'Tarifa de boleto Paggo menor que a cobrada pelo banco'] },
+        { title: 'Transferências', items: ['Saldos consolidados em tempo real, sem ligações ao banco', 'Transferências executadas em um clique, sem acesso a múltiplos bancos', 'Registro e confirmação automáticos, planilhas de controle eliminadas'] }
+      ],
+      h: [
+        { title: 'Contas a Pagar', items: ['Pagamentos processados em lote, sem análise individual por transação', 'Acesso manual ao internet banking eliminado a cada transferência', 'Relatórios gerados automaticamente, sem montagem manual'] },
+        { title: 'Contas a Receber', items: ['Cobranças emitidas automaticamente, sem intervenção manual', 'Inadimplência controlada sem monitoramento diário pelo gestor', 'Conciliação financeira instantânea, sem revisão linha a linha'] },
+        { title: 'Transferências', items: ['Saldos consultados em painel centralizado, sem ligar ao banco', 'Necessidade de caixa analisada automaticamente pelo sistema', 'Confirmação e registro concluídos em segundos, não em minutos'] }
+      ]
+    };
+
+    function showArcTip(chart, idx) {
+      var prefix = chart === 'm' ? 'donut-m-' : 'donut-h-';
+      var seg = document.getElementById(prefix + (idx + 1));
+      if (!seg) return;
+      var dash = seg.getAttribute('stroke-dasharray') || '0';
+      if (parseFloat(dash) < 1) return;
+      var tip = document.getElementById('arc-tip-' + chart);
+      if (!tip) return;
+      var d = DTIPS[chart][idx];
+      tip.innerHTML = '<div class="att-title">' + d.title + '</div><ul class="att-list">' +
+        d.items.map(function(i){ return '<li>' + i + '</li>'; }).join('') + '</ul>';
+      tip.style.display = 'block';
+    }
+
+    function hideArcTip(chart) {
+      var tip = document.getElementById('arc-tip-' + chart);
+      if (tip) tip.style.display = 'none';
+    }
+
+    function isValidContact(v) {
+      v = v.trim();
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return true;
+      if (/^\(?\d{2}\)?[\s.-]?\d{4,5}[\s.-]?\d{4}$/.test(v.replace(/\s/g,''))) return true;
+      return false;
+    }
+
+    function submitLeadEmail() {
+      const el = document.getElementById('pg1-email');
+      const btn = document.querySelector('.pg1-email-btn');
+      if (!el || !isValidContact(el.value)) {
+        el.style.borderColor = 'var(--red)';
+        el.focus();
+        return;
+      }
+      el.style.borderColor = '';
+      btn.textContent = '✓ Recebido!';
+      btn.style.background = 'var(--green)';
+      el.disabled = true;
+      btn.disabled = true;
+    }
+
+    // INIT
+    updatePaySliders();
+    updateLivePreview(); // mostrará placeholder pois S.sc === null
+  </script>
+</body>
+</html>
